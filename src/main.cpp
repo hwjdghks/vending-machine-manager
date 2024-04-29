@@ -11,16 +11,18 @@
 // 첫 번째 함수
 void *function1(void *arg)
 {
-    glfwInit();
-    GLFWwindow* window = glfwCreateWindow(800, 600, "ImGui Example", nullptr, nullptr);
+    if (!glfwInit())
+        return nullptr;
+    // Create window with graphics context
+    GLFWwindow* window = glfwCreateWindow(1920, 1080, "ImGui Example", nullptr, nullptr);
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
 
     // ImGui 초기화
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    io.IniFilename = nullptr;
+    io.IniFilename = nullptr; // 설정 저장 안함
+    io.Fonts->AddFontFromFileTTF("../public/NanumGothicBold.ttf", 21); // 나눔 고딕 폰트 사용
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
@@ -37,11 +39,12 @@ void *function1(void *arg)
         ImGui::NewFrame();
 
         // 단순한 "Hello, World!" 창 생성
-        ImGui::Begin("Hello, world!", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
-        ImGui::SetWindowSize(ImVec2(800, 600));
+        ImGui::Begin("Purchase Window", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+        ImGui::SetWindowSize(ImVec2(1920, 1080));
+        ImGui::SetWindowPos(ImVec2(0, 0));
         // "Click me!" 버튼 생성
         // 직접적으로 UI 요소 생성
-        ImVec2 buttonSize(1000, 500); // 버튼 크기 지정
+        ImVec2 buttonSize(200, 200); // 버튼 크기 지정
         if (!buttonClicked) {
             ImGui::Text("Hello, world!");
             if (ImGui::Button("Click me!", buttonSize))
