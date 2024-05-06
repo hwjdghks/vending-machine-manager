@@ -15,15 +15,35 @@
 #CXX = clang++
 
 EXE = demo_app
-IMGUI_DIR = ../
-SOURCES = main.cpp
-SOURCES += $(IMGUI_DIR)/imgui/imgui.cpp $(IMGUI_DIR)/imgui/imgui_demo.cpp $(IMGUI_DIR)/imgui/imgui_draw.cpp $(IMGUI_DIR)/imgui/imgui_tables.cpp $(IMGUI_DIR)/imgui/imgui_widgets.cpp
-SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
-OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))
+SRCS = main.cpp DebugLog.cpp Client.cpp
+# SRCS = legacy.cpp
+IMGUI = imgui.cpp imgui_demo.cpp imgui_draw.cpp imgui_tables.cpp imgui_widgets.cpp
+BACKENDS = imgui_impl_glfw.cpp imgui_impl_opengl3.cpp
+LIBS_SRCS = Critical.cpp Buffer.cpp utils.cpp
+
+SRCS_DIR = src/
+IMGUI_DIR = imgui/
+BACKENDS_DIR = backends/
+INCS_DIR = inc/
+LIBS_DIR = lib/
+LIBS_INCS_DIR = $(LIBS_DIR)inc/
+LIBS_SRCS_DIR = $(LIBS_DIR)src/
+OBJS_DIR = obj/
+
+SOURCES = $(addprefix $(SRCS_DIR), $(SRCS))
+SOURCES += $(addprefix $(IMGUI_DIR), $(IMGUI))
+SOURCES += $(addprefix $(BACKENDS_DIR), $(BACKENDS))
+SOURCES += $(addprefix $(LIBS_SRCS_DIR), $(SRCS))
+
+OBJS = $(addprefix $(OBJS_DIR), $(SRCS:.cpp=.o))
+OBJS += $(addprefix $(OBJS_DIR), $(IMGUI:.cpp=.o))
+OBJS += $(addprefix $(OBJS_DIR), $(BACKENDS:.cpp=.o))
+OBJS += $(addprefix $(OBJS_DIR), $(LIBS_SRCS:.cpp=.o))
+
 UNAME_S := $(shell uname -s)
 LINUX_GL_LIBS = -lGL
 
-CXXFLAGS = -std=c++17 -I$(IMGUI_DIR)/imgui -I$(IMGUI_DIR)/backends
+CXXFLAGS = -std=c++17 -I$(IMGUI_DIR) -I$(BACKENDS_DIR) -I$(INCS_DIR) -I$(LIBS_INCS_DIR) -I$(LIBS_SRCS_DIR)
 CXXFLAGS += -g -Wall -Wformat
 LIBS =
 
@@ -51,13 +71,21 @@ endif
 ## BUILD RULES
 ##---------------------------------------------------------------------
 
-%.o:%.cpp
+$(OBJS_DIR)%.o:$(SRCS_DIR)%.cpp
+	echo $(SOURCES)
+	@test -d $(OBJS_DIR) || mkdir -p $(OBJS_DIR)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-%.o:$(IMGUI_DIR)/imgui/%.cpp
+$(OBJS_DIR)%.o:$(IMGUI_DIR)%.cpp
+	@test -d $(OBJS_DIR) || mkdir -p $(OBJS_DIR)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-%.o:$(IMGUI_DIR)/backends/%.cpp
+$(OBJS_DIR)%.o:$(BACKENDS_DIR)%.cpp
+	@test -d $(OBJS_DIR) || mkdir -p $(OBJS_DIR)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(OBJS_DIR)%.o:$(LIBS_SRCS_DIR)%.cpp
+	@test -d $(OBJS_DIR) || mkdir -p $(OBJS_DIR)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 all: $(EXE)
@@ -67,4 +95,4 @@ $(EXE): $(OBJS)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
 
 clean:
-	rm -f $(EXE) $(OBJS) *.ini
+	rm -rf $(EXE) $(OBJS_DIR) *.ini

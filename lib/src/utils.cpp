@@ -1,21 +1,10 @@
 #include "utils.hpp"
 #include <type_traits>
 
-template <typename T>
-constexpr int Enum<T>::toInt(const T &value)
+ImVec2 getVec2(const ImVec2 &ratio)
 {
-    static_assert(std::is_enum<T>::value,
-                "Template argument must be an enum class type");
-    return static_cast<int>(value);
-}
-
-template <typename T>
-constexpr bool Enum<T>::toBool(const T &value)
-{
-    static_assert(std::is_enum<Try>::value || std::is_enum<Result>::value,
-                "Template argument must be an Try or Result class");
-    if (static_cast<int>(value) == -1)
-        return false;
-    else
-        return true;
+    ImVec2 display = ImGui::GetIO().DisplaySize;
+    int x = static_cast<int>(display.x * ratio.x);
+    int y = static_cast<int>(display.y * ratio.y);
+    return ImVec2(x, y);
 }
