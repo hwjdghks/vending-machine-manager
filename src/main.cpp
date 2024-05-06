@@ -9,6 +9,7 @@
 #include <string>
 
 #include "DebugLog.hpp"
+#include "GuiWrapper.hpp"
 
 #define NUM_THREADS 2
 
@@ -82,7 +83,7 @@ void *function1(void *arg)
 
     ImGuiIO& io = ImGui::GetIO();
     io.IniFilename = nullptr; // 설정 저장 안함
-    io.Fonts->AddFontFromFileTTF("./public/NanumGothicBold.ttf", 21); // 나눔 고딕 폰트 사용
+    io.Fonts->AddFontFromFileTTF("./public/NanumGothicBold.ttf", 20.0f, nullptr, io.Fonts->GetGlyphRangesKorean()); // 나눔 고딕 폰트 사용
     ImGui::StyleColorsDark();
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -100,7 +101,10 @@ void *function1(void *arg)
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        display(mylog);
+        if (global_Menu == 1)
+            GuiWrapper::drawSalesWindows();
+        else
+            GuiWrapper::drawAdminWindows();
         // ImGui 렌더링
         mylog.Draw("debug");
         ImGui::Render();

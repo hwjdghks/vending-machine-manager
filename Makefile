@@ -15,7 +15,7 @@
 #CXX = clang++
 
 EXE = demo_app
-SRCS = main.cpp DebugLog.cpp Client.cpp
+SRCS = main.cpp DebugLog.cpp Client.cpp GuiWrapper.cpp
 # SRCS = legacy.cpp
 IMGUI = imgui.cpp imgui_demo.cpp imgui_draw.cpp imgui_tables.cpp imgui_widgets.cpp
 BACKENDS = imgui_impl_glfw.cpp imgui_impl_opengl3.cpp
