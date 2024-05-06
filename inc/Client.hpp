@@ -8,7 +8,11 @@
 #include <sys/socket.h>
 #include <fcntl.h>
 #include <chrono>
-
+#include <thread>
+#include <functional>
+#include <cstring>
+#include <unistd.h>
+#include <iostream>
 #define BUFSIZE 1024 /* Need Edit */
 
 class Client

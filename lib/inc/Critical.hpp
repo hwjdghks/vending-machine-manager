@@ -3,8 +3,8 @@
 
 #include "utils.hpp"
 #include <mutex>
+#include <functional>
 
-template<typename F, typename... A>
 class Critical
 {
 private:
@@ -16,7 +16,13 @@ public:
 
 public:
     void lock(std::mutex &mtx);
-    void *execCriticalSection(F fp, A&&... args);
+
+    template<typename F, typename... A>
+    auto execCriticalSection(F&& fp, A&&... args)
+    {
+        std::lock_guard<std::mutex> guard(_mutex);
+        return std::invoke(std::forward<F>(fp), std::forward<A>(args)...);
+    }
 };
 
 

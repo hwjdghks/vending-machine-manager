@@ -15,7 +15,7 @@ std::string Buffer::getBuf(void) noexcept
 std::string Buffer::getLine(void) noexcept
 {
     std::size_t loc = _buf.find('\n');
-    std::string result
+    std::string result;
 
     if (loc != std::string::npos) {
         result = _buf.substr(0, loc);
