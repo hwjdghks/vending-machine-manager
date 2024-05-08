@@ -1,8 +1,18 @@
 #include "DebugLog.hpp"
 
-DebugLog::DebugLog() : AutoScroll(true)
+ImGuiTextBuffer DebugLog::Buf;
+ImVector<int> DebugLog::LineOffsets;
+
+void DebugLog::AddLog(const char* fmt, ...)
 {
-    Clear();
+    int old_size = Buf.size();
+    va_list args;
+    va_start(args, fmt);
+    Buf.appendfv(fmt, args);
+    va_end(args);
+    for (int new_size = Buf.size(); old_size < new_size; old_size++)
+        if (Buf[old_size] == '\n')
+            LineOffsets.push_back(old_size + 1);
 }
 
 void DebugLog::Draw(const char *title)
@@ -38,7 +48,7 @@ void DebugLog::Draw(const char *title)
         }
         clipper.End();
         ImGui::PopStyleVar();
-        if (AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+        if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
             ImGui::SetScrollHereY(1.0f);
     }
     ImGui::EndChild();

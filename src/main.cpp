@@ -13,61 +13,6 @@
 
 #define NUM_THREADS 2
 
-
-void beginDefaultProps(const std::string &title)
-{
-    ImGui::Begin(title.c_str(), nullptr,
-    ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
-}
-
-void initWindowProps(const std::string &title, const ImVec2 &size, const ImVec2 &pos)
-{
-    beginDefaultProps(title);
-    ImGui::SetWindowSize(size);
-    ImGui::SetWindowPos(pos);
-}
-
-void display(DebugLog &mylog)
-{
-    static bool buttonClicked = false; // 토글은 static 변수 사용
-    static bool num = true;
-    ImVec2 sizeRatio(0.75f, 1.0f);
-    ImVec2 posRatio(0.0f, 0.0f);
-    // 단순한 "Hello, World!" 창 생성
-    initWindowProps("test", getVec2(sizeRatio), getVec2(posRatio));
-    // "Click me!" 버튼 생성
-    // 직접적으로 UI 요소 생성
-    ImVec2 buttonSize(200, 200); // 버튼 크기 지정
-    if (!buttonClicked) {
-        ImGui::Text("Hello, world!");
-        if (ImGui::Button("Click me!##1", buttonSize)) {
-            mylog.AddLog("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaButton 1 Click\n");
-            buttonClicked = true;
-        }
-    }
-    // 버튼이 클릭되었는지 확인하여 텍스트 표시
-    else if (buttonClicked) {
-        ImGui::Text("Button clicked!");
-        if (ImGui::Button("return##2", buttonSize)) {
-            mylog.AddLog("Button 2 Click\n");
-            buttonClicked = false;
-        }
-        if (num) {
-            ImGui::OpenPopup("Small Window");
-            if (ImGui::BeginPopupModal("Small Window", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-            {
-                ImGui::Text("This is a small modal window!");
-                if (ImGui::Button("Close")) {
-                    mylog.AddLog("Close button Click\n");
-                    num = false;
-                }
-                ImGui::EndPopup();
-            }
-        }
-    }
-    ImGui::End();
-}
-
 // 첫 번째 함수
 void *function1(void *arg)
 {
@@ -92,7 +37,10 @@ void *function1(void *arg)
     ImGuiStyle& style = ImGui::GetStyle();
     style.WindowMenuButtonPosition = ImGuiDir_None;
 
-    DebugLog mylog;
+    /* Custom Section */
+    DebugLog::Clear();
+    GuiWrapper::initDrawData();
+
     // 메인 루프
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -101,12 +49,12 @@ void *function1(void *arg)
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        if (global_Menu == 1)
+        if (GuiWrapper::getDrawID() == ViewMode::SALES)
             GuiWrapper::drawSalesWindows();
         else
             GuiWrapper::drawAdminWindows();
         // ImGui 렌더링
-        mylog.Draw("debug");
+        DebugLog::Draw("testing Log");
         ImGui::Render();
         // int display_w, display_h;
         // glfwGetFramebufferSize(window, &display_w, &display_h);

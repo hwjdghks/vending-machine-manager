@@ -4,6 +4,8 @@
 #include <type_traits> /* static_assert */
 #include "imgui.h"
 
+#define DUMMY (void *)0
+
 enum class Try {
     CRITICAL = -2,
     FAILURE = -1,
