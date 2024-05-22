@@ -3,7 +3,7 @@
 
 #include "MyNode.hpp"
 #include <string>
-#include <exception>
+#include <stdexcept>
 
 template <typename T>
 class MyList
@@ -16,6 +16,9 @@ private:
 public:
     MyList();
     ~MyList();
+
+public:
+    MyNode<T> *begin(void);
 
 public:
     T front(void);

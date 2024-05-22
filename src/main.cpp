@@ -10,6 +10,7 @@
 
 #include "DebugLog.hpp"
 #include "GuiWrapper.hpp"
+#include "VendingMachine.hpp"
 
 #define NUM_THREADS 2
 
@@ -40,7 +41,9 @@ void *function1(void *arg)
     /* Custom Section */
     DebugLog::Clear();
     GuiWrapper::initDrawData();
-
+    VendingMachine *machine = static_cast<VendingMachine *>(arg);
+    machine->setName(std::string("hello world"));
+    std::cout << machine->getName() << '\n';
     // 메인 루프
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -50,7 +53,7 @@ void *function1(void *arg)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         if (GuiWrapper::getDrawID() == ViewMode::SALES)
-            GuiWrapper::drawSalesWindows();
+            GuiWrapper::drawSalesWindows(*machine);
         else
             GuiWrapper::drawAdminWindows();
         // ImGui 렌더링
@@ -74,20 +77,26 @@ void *function1(void *arg)
     // GLFW 정리
     glfwDestroyWindow(window);
     glfwTerminate();
-    return NULL;
+
+    // 창 종료
+    machine->setClosed();
+    return nullptr;
 }
 
 // 두 번째 함수
 void *function2(void *arg) {
-    while (true)
+    VendingMachine *machine = static_cast<VendingMachine *>(arg);
+
+    while (!machine->isClosed())
     {
         printf("This is function2\n");
         sleep(1);
     }
-    return NULL;
+    return nullptr;
 }
 
 int main() {
+    VendingMachine *machine = new VendingMachine();
     pthread_t threads[NUM_THREADS];
     void *(*thread_functions[NUM_THREADS])(void *) = {
         function1,
@@ -96,7 +105,7 @@ int main() {
 
     // 스레드 배열 생성 및 실행
     for (int i = 0; i < NUM_THREADS; ++i) {
-        if (pthread_create(&threads[i], nullptr, thread_functions[i], nullptr /* data */)) {
+        if (pthread_create(&threads[i], nullptr, thread_functions[i], machine /* data */)) {
             fprintf(stderr, "Error creating thread %d\n", i);
             return 1;
         }
@@ -109,6 +118,6 @@ int main() {
             return 2;
         }
     }
-
+    delete machine;
     return 0;
 }

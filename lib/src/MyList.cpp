@@ -6,39 +6,43 @@ MyList<T>::MyList() : _head(nullptr), _tail(nullptr), _size(0) {}
 template<typename T>
 MyList<T>::~MyList()
 {
-    MyNode<T> *del = this->_head;
-    MyNode<T> *next = nullptr;
+    while (!empty())
+        pop_back();
+}
 
-    while (del != nullptr) {
-        next = del->_next;
-        delete del;
-        del = next;
-    }
+template<typename T>
+MyNode<T> *MyList<T>::begin(void)
+{
+    return _head;
 }
 
 template<typename T>
 T MyList<T>::front(void)
 {
+    if (_head == nullptr)
+        throw std::logic_error("front() 데이터 없음!");
     return _head->_data;
 }
 
 template<typename T>
 T MyList<T>::back(void)
 {
+    if (_tail == nullptr)
+        throw std::logic_error("back() 데이터 없음!");
     return _tail->_data;
 }
 
 template<typename T>
 void MyList<T>::push_back(T data)
 {
-    MyNode<T> *newNode = new MyNode(data);
+    MyNode<T> *newNode = new MyNode<T>(data);
     if (_head == nullptr) {
         _head = newNode;
         _tail = newNode;
     }
     else {
-        _tail->_next = newNode;
         newNode->_prev = _tail;
+        _tail->_next = newNode;
         _tail = newNode;
     }
     _size++;
@@ -48,7 +52,7 @@ template<typename T>
 void MyList<T>::pop_back(void)
 {
     if (this->empty())
-        throw std::exception(); /* Need Edit */
+        throw std::logic_error("pop_back() 데이터 없음!");
 
     MyNode<T> *delNode = nullptr;
 
@@ -70,7 +74,7 @@ template<typename T>
 void MyList<T>::pop_front(void)
 {
     if (this->empty())
-        throw std::exception(); /* Need Edit */
+        throw std::logic_error("pop_front() 데이터 없음!");
 
     MyNode<T> *delNode = nullptr;
 

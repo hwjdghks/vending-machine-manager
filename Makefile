@@ -15,7 +15,7 @@
 #CXX = clang++
 
 EXE = demo_app
-SRCS = main.cpp DebugLog.cpp Client.cpp GuiWrapper.cpp
+SRCS = main.cpp DebugLog.cpp Client.cpp GuiWrapper.cpp Slot.cpp Beverage.cpp VendingMachine.cpp
 # SRCS = legacy.cpp
 IMGUI = imgui.cpp imgui_demo.cpp imgui_draw.cpp imgui_tables.cpp imgui_widgets.cpp
 BACKENDS = imgui_impl_glfw.cpp imgui_impl_opengl3.cpp
@@ -44,7 +44,7 @@ UNAME_S := $(shell uname -s)
 LINUX_GL_LIBS = -lGL
 
 CXXFLAGS = -std=c++17 -I$(IMGUI_DIR) -I$(BACKENDS_DIR) -I$(INCS_DIR) -I$(LIBS_INCS_DIR) -I$(LIBS_SRCS_DIR)
-CXXFLAGS += -g -Wall -Wformat
+CXXFLAGS += -g -Wall -Wformat -pthread
 LIBS =
 
 ##---------------------------------------------------------------------
@@ -72,7 +72,6 @@ endif
 ##---------------------------------------------------------------------
 
 $(OBJS_DIR)%.o:$(SRCS_DIR)%.cpp
-	echo $(SOURCES)
 	@test -d $(OBJS_DIR) || mkdir -p $(OBJS_DIR)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 

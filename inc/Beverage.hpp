@@ -9,11 +9,11 @@ private:
     int             _price; // price of beverage
 
 public:
-    Beverage(const std::string &name, const int &price);
+    Beverage(const std::string &name, int price);
     ~Beverage();
 
 public:
-    const std::string &getName() const noexcept;
+    std::string getName() const noexcept;
     int getPrice() const noexcept;
 
 public:

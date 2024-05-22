@@ -1,31 +1,36 @@
 #ifndef SLOT_HPP
 #define SLOT_HPP
 
-#include "MyQueue.hpp"
+#include "MyList.hpp"
+#include "Beverage.hpp"
 
-template <typename T>
 class Slot
 {
 private:
     int         _ID;
     std::string _type;
-    MyQueue<T>  _storage;
+    int         _price;
+    MyList<Beverage>  _storage;
 
 public:
     Slot();
+    Slot(int id, const std::string &type, int price);
     ~Slot();
 
 public:
     int getID(void) const noexcept;
+    int getPrice(void) const noexcept;
     std::string getType(void) const noexcept;
     std::size_t getStock(void) const noexcept;
 
 public:
-    void setType(const std::string &type);
+    void updateInfo(int price = -1, const std::string &type = "");
 
 public:
-    void refill();  // 보충
-    void dispense(); // 판매
+    void initStock();
+    void refill(std::size_t stock);  // 보충
+    void sell();    // 판매
+    void flush();   // 비우기
 };
 
 #endif

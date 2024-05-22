@@ -22,13 +22,13 @@ enum class ViewMode {
     ADMIN
 };
 
-enum class Currency {
-    WON_10 = 10,
-    WON_50 = 50,
-    WON_100 = 100,
-    WON_500 = 500,
-    WON_1000 = 1000
-};
+// enum class Currency {
+//     WON_10 = 10,
+//     WON_50 = 50,
+//     WON_100 = 100,
+//     WON_500 = 500,
+//     WON_1000 = 1000
+// };
 
 template <typename T>
 class Enum

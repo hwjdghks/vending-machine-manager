@@ -5,6 +5,7 @@ ImVector<int> DebugLog::LineOffsets;
 
 void DebugLog::AddLog(const char* fmt, ...)
 {
+    Buf.append("\n");
     int old_size = Buf.size();
     va_list args;
     va_start(args, fmt);

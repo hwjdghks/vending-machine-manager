@@ -3,7 +3,7 @@
 
 #include "Critical.hpp"
 #include "Buffer.hpp"
-#include <string>
+
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <fcntl.h>
@@ -13,6 +13,7 @@
 #include <cstring>
 #include <unistd.h>
 #include <iostream>
+
 #define BUFSIZE 1024 /* Need Edit */
 
 class Client
@@ -23,6 +24,7 @@ private:
     Buffer _writeBuf;
     Critical _mtxRecv;
     Critical _mtxSend;
+    Critical _mtxLog;
     Critical _mtxEtc;
 
 public:

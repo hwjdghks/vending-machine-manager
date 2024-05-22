@@ -14,7 +14,6 @@ private:
 public:
     DebugLog();
 
-
     static void AddLog(const char* fmt, ...) IM_FMTARGS(1);
     static void Draw(const char *title);
     static void Clear();

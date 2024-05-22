@@ -4,6 +4,7 @@
 #include "imgui.h"
 #include "utils.hpp"
 #include "DebugLog.hpp"
+#include "VendingMachine.hpp"
 
 class GuiWrapper
 {
@@ -19,12 +20,12 @@ public:
 public:
     static void initDrawData();
     static ViewMode getDrawID();
-    static void drawSalesWindows();
+    static void drawSalesWindows(VendingMachine &machine);
     static void drawAdminWindows();
     void drawConnectToServerWindows();
 
 private: /* Sales */
-    static void _addDisplayBeverage(const ImVec2 &start);
+    static void _addDisplayBeverage(VendingMachine &machine, const ImVec2 &start);
     static void _addPaymentPanel(const ImVec2 &start);
     static void _drawSignInWindows(const ImVec2 &start);
 
@@ -33,7 +34,7 @@ private: /* Admin */
     void _addCurrencyInfo();
 
 private: /* Sales utility */
-    static void __addBuyButton(int id, const ImVec2 &ratio);
+    static void __addBuyButton(Slot &slot, const ImVec2 &ratio);
     static void __addCoinButton(const char *label, const ImVec2 &ratio);
     static void __addDisplayPanel(const char *label, const ImVec2 &ratio);
     void __addImage();
