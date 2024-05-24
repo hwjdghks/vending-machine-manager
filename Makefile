@@ -70,7 +70,7 @@ all: $(EXE)
 $(EXE): $(OBJS)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
 
-$(OBJS_DIR)%.o: $(SRCS_DIR)%.cpp
+$(OBJS_DIR)%.o:$(SRCS_DIR)%.cpp
 	@test -d $(OBJS_DIR) || mkdir -p $(OBJS_DIR)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
