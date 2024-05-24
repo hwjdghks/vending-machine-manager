@@ -1,32 +1,38 @@
 #ifndef VENDINGMACHINE_HPP
 #define VENDINGMACHINE_HPP
 
-#include "Beverage.hpp"
-#include "Slot.hpp"
-#include "Currency.hpp"
-#include "Client.hpp"
+#include "Shelf.hpp"
+#include "CashTray.hpp"
 
 class VendingMachine
 {
 private:
-    std::string _name;
-    Slot        _slot[6];
-    Client      _client;
-    bool        _closed;
+    std::string _label;
+    Shelf       _rack[6];
+    CashTray    _cashBox[5];
+    int         _remainBalance;
 
 public:
     VendingMachine();
     ~VendingMachine();
 
 public:
-    std::string getName() const;
-    Slot (&getSlot())[6];
-    Client &getClient();
-    bool isClosed() const noexcept;
+    void sell(int id);
+    void refill(int id, int count);
 
-    void setName(const std::string &name);
-    void setClosed(void) noexcept;
+public:
+    void deposit(int id);
+    void withdraw(int id);
+    void settlement(void);
+    void returnCharge(void);
+
+public:
+    std::string getLabel(void) const noexcept;
+    Shelf &getRack(int idx);
+    CashTray &getCashBox(int idx);
+    int getBalance(void) const noexcept;
+
+public:
+    void setLabel(const std::string label);
 };
-
-
 #endif

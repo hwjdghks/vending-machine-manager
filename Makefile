@@ -15,12 +15,10 @@
 #CXX = clang++
 
 EXE = demo_app
-SRCS = main.cpp DebugLog.cpp Client.cpp GuiWrapper.cpp Slot.cpp Beverage.cpp VendingMachine.cpp
-# SRCS = legacy.cpp
-IMGUI = imgui.cpp imgui_demo.cpp imgui_draw.cpp imgui_tables.cpp imgui_widgets.cpp
-BACKENDS = imgui_impl_glfw.cpp imgui_impl_opengl3.cpp
-LIBS_SRCS = Critical.cpp Buffer.cpp utils.cpp
-
+SRCS = main.cpp DebugLog.cpp Client.cpp Page.cpp Shelf.cpp CashTray.cpp VendingMachine.cpp
+IMGUI_SRCS = imgui.cpp imgui_demo.cpp imgui_draw.cpp imgui_tables.cpp imgui_widgets.cpp
+BACKENDS_SRCS = imgui_impl_glfw.cpp imgui_impl_opengl3.cpp
+LIBS_SRCS = Buffer.cpp utils.cpp
 SRCS_DIR = src/
 IMGUI_DIR = imgui/
 BACKENDS_DIR = backends/
@@ -30,14 +28,9 @@ LIBS_INCS_DIR = $(LIBS_DIR)inc/
 LIBS_SRCS_DIR = $(LIBS_DIR)src/
 OBJS_DIR = obj/
 
-SOURCES = $(addprefix $(SRCS_DIR), $(SRCS))
-SOURCES += $(addprefix $(IMGUI_DIR), $(IMGUI))
-SOURCES += $(addprefix $(BACKENDS_DIR), $(BACKENDS))
-SOURCES += $(addprefix $(LIBS_SRCS_DIR), $(SRCS))
-
 OBJS = $(addprefix $(OBJS_DIR), $(SRCS:.cpp=.o))
-OBJS += $(addprefix $(OBJS_DIR), $(IMGUI:.cpp=.o))
-OBJS += $(addprefix $(OBJS_DIR), $(BACKENDS:.cpp=.o))
+OBJS += $(addprefix $(OBJS_DIR), $(IMGUI_SRCS:.cpp=.o))
+OBJS += $(addprefix $(OBJS_DIR), $(BACKENDS_SRCS:.cpp=.o))
 OBJS += $(addprefix $(OBJS_DIR), $(LIBS_SRCS:.cpp=.o))
 
 UNAME_S := $(shell uname -s)
@@ -71,7 +64,13 @@ endif
 ## BUILD RULES
 ##---------------------------------------------------------------------
 
-$(OBJS_DIR)%.o:$(SRCS_DIR)%.cpp
+all: $(EXE)
+	@echo Build complete for $(ECHO_MESSAGE)
+
+$(EXE): $(OBJS)
+	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
+
+$(OBJS_DIR)%.o: $(SRCS_DIR)%.cpp
 	@test -d $(OBJS_DIR) || mkdir -p $(OBJS_DIR)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
@@ -87,11 +86,9 @@ $(OBJS_DIR)%.o:$(LIBS_SRCS_DIR)%.cpp
 	@test -d $(OBJS_DIR) || mkdir -p $(OBJS_DIR)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-all: $(EXE)
-	@echo Build complete for $(ECHO_MESSAGE)
-
-$(EXE): $(OBJS)
-	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
-
 clean:
 	rm -rf $(EXE) $(OBJS_DIR) *.ini
+
+re:
+	make clean
+	make

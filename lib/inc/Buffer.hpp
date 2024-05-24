@@ -2,22 +2,24 @@
 #define BUFFER_HPP
 
 #include <string>
-#include <sys/types.h> /* Need Edit */
+#include <mutex>
 
 class Buffer
 {
 private:
     std::string _buf;
+    std::mutex _mutex;
 
 public:
     Buffer();
     ~Buffer();
 
 public:
-    std::string getBuf(void) noexcept;
-    std::string getLine(void) noexcept;
-    void addBuf(const std::string &newBuf) noexcept;
-    void rollBackBuf(std::string &remain, ssize_t len) noexcept;
+    void clear(void) noexcept;
+    void fill(std::string str) noexcept;
+    void fill(const char *str) noexcept;
+    std::string flush(void) noexcept;
+    void rollback(std::string str, std::size_t pos) noexcept;
 };
 
 #endif

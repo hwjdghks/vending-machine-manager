@@ -1,12 +1,12 @@
-#ifndef GUIWRAPPER_HPP
-#define GUIWRAPPER_HPP
+#ifndef PAGE_HPP
+#define PAGE_HPP
 
 #include "imgui.h"
 #include "utils.hpp"
 #include "DebugLog.hpp"
 #include "VendingMachine.hpp"
 
-class GuiWrapper
+class Page
 {
 private:
     /* data */
@@ -14,8 +14,8 @@ private:
     static bool _drawSignIn;
 
 public:
-    GuiWrapper(/* args */);
-    ~GuiWrapper();
+    Page(/* args */);
+    ~Page();
 
 public:
     static void initDrawData();
@@ -26,7 +26,7 @@ public:
 
 private: /* Sales */
     static void _addDisplayBeverage(VendingMachine &machine, const ImVec2 &start);
-    static void _addPaymentPanel(const ImVec2 &start);
+    static void _addPaymentPanel(VendingMachine &machine, const ImVec2 &start);
     static void _drawSignInWindows(const ImVec2 &start);
 
 private: /* Admin */
@@ -34,8 +34,8 @@ private: /* Admin */
     void _addCurrencyInfo();
 
 private: /* Sales utility */
-    static void __addBuyButton(Slot &slot, const ImVec2 &ratio);
-    static void __addCoinButton(const char *label, const ImVec2 &ratio);
+    static void __addBuyButton(VendingMachine &machine, Shelf &rack, const ImVec2 &ratio);
+    static void __addCoinButton(VendingMachine &machine, CashTray &tray, const ImVec2 &ratio);
     static void __addDisplayPanel(const char *label, const ImVec2 &ratio);
     void __addImage();
 

@@ -4,9 +4,11 @@
 class Currency
 {
 private:
-    const char *type;
+    int _label;
 
 public:
+    Currency(int label) : _label(label) {}
+    ~Currency() {}
 };
 
 #endif

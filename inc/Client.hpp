@@ -1,46 +1,58 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
-#include "Critical.hpp"
 #include "Buffer.hpp"
+#include "DebugLog.hpp"
 
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <fcntl.h>
-#include <chrono>
-#include <thread>
-#include <functional>
-#include <cstring>
-#include <unistd.h>
-#include <iostream>
+#include <unistd.h> // close
+#include <sys/socket.h> // socket
+#include <arpa/inet.h> // inet
+#include <fcntl.h> // fcntl
+#include <cstring> // memset
+#include <iostream> // cerr
+#include <thread> // thread
+#include <chrono> // time
 
-#define BUFSIZE 1024 /* Need Edit */
+#define CONNECTION_IP "127.0.0.1"
+#define PORT 6667
+#define BACKLOG 5
+#define BUFSIZE 2048
 
 class Client
 {
 private:
     int _fd;
-    Buffer _readBuf;
-    Buffer _writeBuf;
-    Critical _mtxRecv;
-    Critical _mtxSend;
-    Critical _mtxLog;
-    Critical _mtxEtc;
+    int _id;
+    struct sockaddr_in _addr;
+    Buffer readBuf;
+    Buffer writeBuf;
+    std::mutex _mutex;
 
 public:
     Client();
     ~Client();
 
+private:
+    void init(void);
+    int recvMsg(void);
+    int sendMsg(void);
+
 public:
-    void connect(void);
-    void recvMsg(void);
-    void sendMsg(void);
+    void serverInit(void);
+    void clientInit(void);
+    void run(void);
+
+public:
+    int getFD(void);
+    void setFD(int fd);
+    void closeFD(void);
+
+public:
+    void addToBuf(const std::string &str);
+    void addToBuf(const char *str);
 
 private:
-    void _recv(void);
-    void _send(void);
-    int _getFd(void);
-    void _setFd(int fd);
+    static void recvLoop(Client &client);
+    static void sendLoop(Client &clinet);
 };
-
 #endif

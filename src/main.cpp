@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <unistd.h>
-#include <pthread.h>
+#include <thread>
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -9,7 +9,7 @@
 #include <string>
 
 #include "DebugLog.hpp"
-#include "GuiWrapper.hpp"
+#include "Page.hpp"
 #include "VendingMachine.hpp"
 
 #define NUM_THREADS 2
@@ -40,10 +40,8 @@ void *function1(void *arg)
 
     /* Custom Section */
     DebugLog::Clear();
-    GuiWrapper::initDrawData();
+    Page::initDrawData();
     VendingMachine *machine = static_cast<VendingMachine *>(arg);
-    machine->setName(std::string("hello world"));
-    std::cout << machine->getName() << '\n';
     // 메인 루프
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -52,10 +50,10 @@ void *function1(void *arg)
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        if (GuiWrapper::getDrawID() == ViewMode::SALES)
-            GuiWrapper::drawSalesWindows(*machine);
+        if (Page::getDrawID() == ViewMode::SALES)
+            Page::drawSalesWindows(*machine);
         else
-            GuiWrapper::drawAdminWindows();
+            Page::drawAdminWindows();
         // ImGui 렌더링
         DebugLog::Draw("testing Log");
         ImGui::Render();
@@ -79,7 +77,7 @@ void *function1(void *arg)
     glfwTerminate();
 
     // 창 종료
-    machine->setClosed();
+    /* Need Edit */
     return nullptr;
 }
 
@@ -87,37 +85,14 @@ void *function1(void *arg)
 void *function2(void *arg) {
     VendingMachine *machine = static_cast<VendingMachine *>(arg);
 
-    while (!machine->isClosed())
-    {
-        printf("This is function2\n");
-        sleep(1);
-    }
     return nullptr;
 }
 
 int main() {
     VendingMachine *machine = new VendingMachine();
-    pthread_t threads[NUM_THREADS];
-    void *(*thread_functions[NUM_THREADS])(void *) = {
-        function1,
-        function2
-    };
 
-    // 스레드 배열 생성 및 실행
-    for (int i = 0; i < NUM_THREADS; ++i) {
-        if (pthread_create(&threads[i], nullptr, thread_functions[i], machine /* data */)) {
-            fprintf(stderr, "Error creating thread %d\n", i);
-            return 1;
-        }
-    }
-
-    // 스레드 종료 대기
-    for (int i = 0; i < NUM_THREADS; ++i) {
-        if (pthread_join(threads[i], nullptr)) {
-            fprintf(stderr, "Error joining thread %d\n", i);
-            return 2;
-        }
-    }
+    std::thread windows(function1, machine);
+    windows.join();
     delete machine;
     return 0;
 }

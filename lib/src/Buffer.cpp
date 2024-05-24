@@ -4,32 +4,34 @@ Buffer::Buffer() : _buf(std::string("")) {}
 
 Buffer::~Buffer() {}
 
-std::string Buffer::getBuf(void) noexcept
+void Buffer::clear(void) noexcept
 {
-    std::string temp(_buf);
-
+    std::lock_guard<std::mutex> lock(_mutex);
     _buf.clear();
-    return temp;
 }
 
-std::string Buffer::getLine(void) noexcept
+void Buffer::fill(std::string str) noexcept
 {
-    std::size_t loc = _buf.find('\n');
-    std::string result;
-
-    if (loc != std::string::npos) {
-        result = _buf.substr(0, loc);
-        _buf = _buf.substr(loc + 1);
-    }
-    return result;
+    std::lock_guard<std::mutex> lock(_mutex);
+    _buf += str;
 }
 
-void Buffer::addBuf(const std::string &newBuf) noexcept
+void Buffer::fill(const char *str) noexcept
 {
-    _buf += newBuf;
+    std::lock_guard<std::mutex> lock(_mutex);
+    _buf += str;
 }
 
-void Buffer::rollBackBuf(std::string &remain, ssize_t len) noexcept
+std::string Buffer::flush(void) noexcept
 {
-    _buf = remain.substr(len);
+    std::lock_guard<std::mutex> lock(_mutex);
+    std::string ret = std::move(_buf);
+    _buf.clear();
+    return ret;
+}
+
+void Buffer::rollback(std::string str, std::size_t pos) noexcept
+{
+    std::lock_guard<std::mutex> lock(_mutex);
+    _buf.insert(0, str.substr(pos));
 }
