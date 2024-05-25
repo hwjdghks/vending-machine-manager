@@ -14,7 +14,7 @@ bool Page::_drawSignIn;
  */
 void Page::initDrawData()
 {
-    Page::_drawMenuID = ViewMode::SALES;
+    Page::_drawMenuID = ViewMode::ADMIN;
     Page::_drawSignIn = false;
 }
 
@@ -116,10 +116,10 @@ void Page::_addPaymentPanel(Program &program, const ImVec2 &start)
     ImGui::Text("현재 잔액: ");
     ImGui::SameLine();
     ImGui::Text("%d원", machine.getBalance());
-    // 잔돈 부족 시 텍스트 추가
+    // 거스름돈 부족시 텍스트 추가
     if (machine.getAlert()) {
         ImGui::SetCursorPos(getVec2(currentBalanceRatio + ImVec2(0, -0.05f)));
-        ImGui::Text("잔돈 부족");
+        ImGui::Text("거스름돈 부족");
     }
     // 반환 버튼 추가
     ImGui::SetCursorPos(getVec2(currentBalanceRatio + ImVec2(0.0f, 0.05f)));
