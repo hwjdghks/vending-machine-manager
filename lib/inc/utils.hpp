@@ -5,6 +5,7 @@
 #include "imgui.h"
 
 #define DUMMY (void *)0
+#define BASIC_BUTTON_SIZE ImVec2(170, 60)
 
 enum class ViewMode {
     SALES,

@@ -53,7 +53,7 @@ void *function1(void *arg)
         if (Page::getDrawID() == ViewMode::SALES)
             Page::drawSalesWindows(*program);
         else
-            Page::drawAdminWindows();
+            Page::drawAdminWindows(*program);
         // ImGui 렌더링
         DebugLog::Draw("testing Log");
         ImGui::Render();
