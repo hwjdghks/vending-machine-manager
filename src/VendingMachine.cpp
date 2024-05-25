@@ -1,27 +1,22 @@
 #include "VendingMachine.hpp"
 
-
+// 임시 객체 생성으로 인한 문제 방지
 VendingMachine::VendingMachine()
-: _remainBalance(0)
-{
-    std::string label[6] = {
-        "물",
-        "커피",
-        "이온음료",
-        "고급커피",
-        "탄산음료",
-        "특화음료"
-    };
-    int price[6] = { 450, 500, 550, 700, 750, 800};
-    int currency[5] = { 10, 50, 100, 500, 1000 };
-
-    for (int i = 0; i < 6; i++)
-        _rack[i] = Shelf(i, label[i], price[i]);
-    for (int i = 0; i < 5; i++) 
-        _cashBox[i] = CashTray(i, currency[i]);
-    printf("머신 끝\n");
-    printf("%ld\n", _rack[0].getAmount());
-}
+: _rack{
+      Shelf(0, "물", 450),
+      Shelf(1, "커피", 500),
+      Shelf(2, "이온음료", 550),
+      Shelf(3, "고급커피", 700),
+      Shelf(4, "탄산음료", 750),
+      Shelf(5, "특화음료", 800)},
+  _cashBox{
+    CashTray(0, 10), 
+    CashTray(1, 50),
+    CashTray(2, 100),
+    CashTray(3, 500),
+    CashTray(4, 1000)}, 
+  _remainBalance(0)
+{}
 
 VendingMachine::~VendingMachine() {}
 
