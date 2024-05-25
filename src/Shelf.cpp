@@ -1,17 +1,15 @@
 #include "Shelf.hpp"
 
-Shelf::Shelf() { printf("생성\n"); }
+Shelf::Shelf() {}
 
 Shelf::Shelf(int id, const std::string &label, int price)
 : _id(id), _label(label), _price(price)
 {
-    printf("%d %s 생성\n", id, label.c_str());
     for (int i = 0; i < PRODUCT_AMOUNT; i++)
         _shelf.push(Beverage(_label, _price));
-    printf("생성 끝\n");
 }
 
-Shelf::~Shelf() { printf("파괴\n"); }
+Shelf::~Shelf() {}
 
 
 void Shelf::refill(int count)

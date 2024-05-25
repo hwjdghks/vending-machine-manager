@@ -9,7 +9,7 @@ CashTray::CashTray(int id, int label)
         _cashBox.push(Currency(_label));
 }
 
-CashTray::~CashTray() { printf("파괴\n"); }
+CashTray::~CashTray() {}
 
 void CashTray::deposit(void)
 {
