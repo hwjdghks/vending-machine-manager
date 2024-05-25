@@ -7,13 +7,15 @@ VendingMachine::VendingMachine()
     Shelf(2, "이온음료", 550),
     Shelf(3, "고급커피", 700),
     Shelf(4, "탄산음료", 750),
-    Shelf(5, "특화음료", 800)},
+    Shelf(5, "특화음료", 800)
+  },
   _cashBox{
-    CashTray(0, 10), 
+    CashTray(0, 10),
     CashTray(1, 50),
     CashTray(2, 100),
     CashTray(3, 500),
-    CashTray(4, 1000)}, 
+    CashTray(4, 1000)
+  },
   _remainBalance(0),
   _noChangeAlert(false)
 {}
