@@ -75,6 +75,7 @@ void MyList<T>::pop_back()
         delete del;
         _size--;
     }
+    printf("size: %d\n", _size);
 }
 
 template <typename T>

@@ -15,7 +15,7 @@
 #CXX = clang++
 
 EXE = demo_app
-SRCS = main.cpp DebugLog.cpp Client.cpp Page.cpp Shelf.cpp CashTray.cpp VendingMachine.cpp
+SRCS = main.cpp DebugLog.cpp Client.cpp Page.cpp Shelf.cpp CashTray.cpp VendingMachine.cpp Program.cpp
 IMGUI_SRCS = imgui.cpp imgui_demo.cpp imgui_draw.cpp imgui_tables.cpp imgui_widgets.cpp
 BACKENDS_SRCS = imgui_impl_glfw.cpp imgui_impl_opengl3.cpp
 LIBS_SRCS = Buffer.cpp utils.cpp

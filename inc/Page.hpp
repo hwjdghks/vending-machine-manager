@@ -4,7 +4,7 @@
 #include "imgui.h"
 #include "utils.hpp"
 #include "DebugLog.hpp"
-#include "VendingMachine.hpp"
+#include "Program.hpp"
 
 class Page
 {
@@ -20,14 +20,14 @@ public:
 public:
     static void initDrawData();
     static ViewMode getDrawID();
-    static void drawSalesWindows(VendingMachine &machine);
+    static void drawSalesWindows(Program &program);
     static void drawAdminWindows();
     void drawConnectToServerWindows();
 
 private: /* Sales */
-    static void _addDisplayBeverage(VendingMachine &machine, const ImVec2 &start);
-    static void _addPaymentPanel(VendingMachine &machine, const ImVec2 &start);
-    static void _drawSignInWindows(const ImVec2 &start);
+    static void _addDisplayBeverage(Program &program, const ImVec2 &start);
+    static void _addPaymentPanel(Program &program, const ImVec2 &start);
+    static void _drawSignInWindows(Program &program, const ImVec2 &start);
 
 private: /* Admin */
     void _addBeveragesInfo();

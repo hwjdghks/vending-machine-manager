@@ -1,21 +1,21 @@
 #include "VendingMachine.hpp"
 
-// 임시 객체 생성으로 인한 문제 방지
 VendingMachine::VendingMachine()
 : _rack{
-      Shelf(0, "물", 450),
-      Shelf(1, "커피", 500),
-      Shelf(2, "이온음료", 550),
-      Shelf(3, "고급커피", 700),
-      Shelf(4, "탄산음료", 750),
-      Shelf(5, "특화음료", 800)},
+    Shelf(0, "물", 450),
+    Shelf(1, "커피", 500),
+    Shelf(2, "이온음료", 550),
+    Shelf(3, "고급커피", 700),
+    Shelf(4, "탄산음료", 750),
+    Shelf(5, "특화음료", 800)},
   _cashBox{
     CashTray(0, 10), 
     CashTray(1, 50),
     CashTray(2, 100),
     CashTray(3, 500),
     CashTray(4, 1000)}, 
-  _remainBalance(0)
+  _remainBalance(0),
+  _noChangeAlert(false)
 {}
 
 VendingMachine::~VendingMachine() {}
@@ -23,6 +23,8 @@ VendingMachine::~VendingMachine() {}
 void VendingMachine::sell(int id)
 {
     _rack[id].sell();
+    _remainBalance -= _rack[id].getPrice();
+    checkChange();
 }
 
 void VendingMachine::deposit(int id)
@@ -45,11 +47,11 @@ void VendingMachine::settlement(void)
         total_money += _cashBox[i].settlement();
 }
 
-void VendingMachine::returnCharge(void)
+void VendingMachine::returnChange(void)
 {
     int currency[5] = { 10, 50, 100, 500, 1000 };
-    int currency_used[5];
-    int currency_amount[5];
+    int currency_used[5] = { 0 };
+    int currency_amount[5] = { 0 };
 
     for (int i = 0; i < 5; i++)
         currency_amount[i] = _cashBox[i].getAmount();
@@ -70,17 +72,41 @@ void VendingMachine::returnCharge(void)
         i--;
     }
     if (temp_money > 0)
-        throw std::logic_error("잔돈 없음! 반환 불가!");
+        throw std::logic_error("잔돈 부족! 반환 불가");
     else {
         DebugLog::AddLog("총액 %d원 반환",  _remainBalance);
         _remainBalance = 0;
     }
     for (int i = 0; i < 5; i++) {
-        DebugLog::AddLog("%d원 %d개 반환.", currency[i], currency_used[i]);
-        for (int used = currency_used[i]; used; used--)
+        for (int used = currency_used[i]; used; used--) {
+            printf("used: %d\n", used);
             _cashBox[i].withdraw();
-        DebugLog::AddLog("남은 %d원 개수: %d", currency[i], _cashBox[i].getAmount());
+        }
     }
+    checkChange();
+
+    // 로그 출력
+    char buffer[100];
+
+    snprintf(buffer, sizeof(buffer), "%d, %d, %d, %d, %d",
+    currency_used[0], currency_used[1], currency_used[2],
+    currency_used[3], currency_used[4]);
+    DebugLog::AddLog("반환된 화폐 개수: %s", buffer);
+
+    snprintf(buffer, sizeof(buffer), "%d, %d, %d, %d, %d",
+    _cashBox[0].getAmount(), _cashBox[1].getAmount(), _cashBox[2].getAmount(),
+    _cashBox[3].getAmount(), _cashBox[4].getAmount());
+    DebugLog::AddLog("남은 화폐 개수  : %s", buffer);
+}
+
+void VendingMachine::checkChange(void) noexcept
+{
+    bool flag = false;
+
+    for (int i = 0; i < 5; i++)
+        if (_cashBox[i].getAmount() < 3)
+            flag = true;
+    _noChangeAlert = flag;
 }
 
 std::string VendingMachine::getLabel(void) const noexcept
@@ -105,6 +131,11 @@ CashTray& VendingMachine::getCashBox(int idx)
 int VendingMachine::getBalance(void) const noexcept
 {
     return _remainBalance;
+}
+
+bool VendingMachine::getAlert(void) const noexcept
+{
+    return _noChangeAlert;
 }
 
 void VendingMachine::setLabel(const std::string label)

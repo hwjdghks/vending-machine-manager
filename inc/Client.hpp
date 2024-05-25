@@ -40,6 +40,7 @@ private:
 public:
     void serverInit(void);
     void clientInit(void);
+    void tryConnect(void);
     void run(void);
 
 public:
@@ -52,6 +53,7 @@ public:
     void addToBuf(const char *str);
 
 private:
+    static void acceptLoop(Client &client);
     static void recvLoop(Client &client);
     static void sendLoop(Client &clinet);
 };

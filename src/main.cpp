@@ -8,9 +8,8 @@
 #include <GLFW/glfw3.h>
 #include <string>
 
-#include "DebugLog.hpp"
 #include "Page.hpp"
-#include "VendingMachine.hpp"
+#include "Program.hpp"
 
 #define NUM_THREADS 2
 
@@ -28,20 +27,21 @@ void *function1(void *arg)
     ImGui::CreateContext();
 
     ImGuiIO& io = ImGui::GetIO();
-    io.IniFilename = nullptr; // 설정 저장 안함
+    // 설정 저장 안함(ini 파일 생성 안함)
+    io.IniFilename = nullptr;
+    // 나눔고딕 볼드체 폰트 사용
     io.Fonts->AddFontFromFileTTF("./public/NanumGothicBold.ttf", 20.0f, nullptr, io.Fonts->GetGlyphRangesKorean()); // 나눔 고딕 폰트 사용
+    // 기본 색상
     ImGui::StyleColorsDark();
 
+    // 프로그램 창 초기화
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
-
-    ImGuiStyle& style = ImGui::GetStyle();
-    style.WindowMenuButtonPosition = ImGuiDir_None;
 
     /* Custom Section */
     DebugLog::Clear();
     Page::initDrawData();
-    VendingMachine *machine = static_cast<VendingMachine *>(arg);
+    Program *program = static_cast<Program *>(arg);
     // 메인 루프
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -51,7 +51,7 @@ void *function1(void *arg)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         if (Page::getDrawID() == ViewMode::SALES)
-            Page::drawSalesWindows(*machine);
+            Page::drawSalesWindows(*program);
         else
             Page::drawAdminWindows();
         // ImGui 렌더링
@@ -89,10 +89,10 @@ void *function2(void *arg) {
 }
 
 int main() {
-    VendingMachine *machine = new VendingMachine();
+    Program *program = new Program();
 
-    std::thread windows(function1, machine);
+    std::thread windows(function1, program);
     windows.join();
-    delete machine;
+    delete program;
     return 0;
 }

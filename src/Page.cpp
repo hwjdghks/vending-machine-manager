@@ -9,18 +9,27 @@ Page::~Page() {}
 ViewMode Page::_drawMenuID;
 bool Page::_drawSignIn;
 
+/*
+ * static 데이터 초기화
+ */
 void Page::initDrawData()
 {
     Page::_drawMenuID = ViewMode::SALES;
     Page::_drawSignIn = false;
 }
 
+/*
+ * 현재 그리는 창의 ID를 반환
+ */
 ViewMode Page::getDrawID()
 {
     return Page::_drawMenuID;
 }
 
-void Page::drawSalesWindows(VendingMachine &machine)
+/*
+ * 판매 페이지 창을 그리는 함수
+ */
+void Page::drawSalesWindows(Program &program)
 {
     ImVec2 winPosRatio(0.0f, 0.0f);
     ImVec2 winSizeRatio(0.75f, 1.0f);
@@ -28,19 +37,28 @@ void Page::drawSalesWindows(VendingMachine &machine)
     ImVec2 paymentRatio(0.07f, 0.6f);
     ImVec2 signInRatio(0.55f, 0.1f);
 
+    // 창 시작시 기본 옵션 지정
     __beginDefaultProps("Sales Menu");
     __setWindowProps(winPosRatio, winSizeRatio);
-    _addDisplayBeverage(machine, displayBeverageRatio);
-    _addPaymentPanel(machine, paymentRatio);
-    _drawSignInWindows(signInRatio);
+    // 상품 UI
+    _addDisplayBeverage(program, displayBeverageRatio);
+    // 화폐 관련 UI
+    _addPaymentPanel(program, paymentRatio);
+    // 관리자 페이지 전환을 위한 UI
+    _drawSignInWindows(program, signInRatio);
+    // 창의 끝
     ImGui::End();
 }
 
+/*
+ * 관리자 페이지 창을 그리는 함수
+ */
 void Page::drawAdminWindows()
 {
     ImVec2 winPosRatio(0.0f, 0.0f);
     ImVec2 winSizeRatio(0.75f, 1.0f);
 
+    // 창 시작시 기본 옵션 지정
     __beginDefaultProps("Admin Menu");
     __setWindowProps(winPosRatio, winSizeRatio);
     if (ImGui::Button("판매 페이지 전환", ImVec2(170, 60))) {
@@ -50,29 +68,82 @@ void Page::drawAdminWindows()
     ImGui::End();
 }
 
-void Page::_drawSignInWindows(const ImVec2 &start)
+/*
+ * 관리자 페이지로 넘어가기 위한 UI를 그리는 함수
+ */
+void Page::_drawSignInWindows(Program &program, const ImVec2 &start)
 {
+    static bool wrongPassFlag = false;
+    static char inputPass[100]; // 비밀번호 입력용 버퍼
+
+    // 버퍼 초기화
+    memset(inputPass, 0, sizeof(inputPass));
+    // 판매 화면에 페이지 전환 버튼 추가
     ImGui::SetCursorPos(getVec2(start));
     if (ImGui::Button("관리자 페이지 전환", ImVec2(170, 60))) {
         DebugLog::AddLog("관리자 페이지 전환 버튼 클릭");
         _drawSignIn = true;
     }
-    if (_drawSignIn)
-    {
-        ImGui::OpenPopup("Small Window");
-        if (ImGui::BeginPopupModal("Small Window", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-            ImGui::Text("This is a small modal window!");
-            if (ImGui::Button("Close")) {
-                DebugLog::AddLog("팝업 닫힘");
+    // 버튼 클릭하지 않으면 여기서 그리기 종료
+    if (_drawSignIn == false)
+        return ;
+
+    // 로그인 팝업 창 구현
+    ImGui::SetNextWindowSize(ImVec2(300, 150));
+    ImGui::OpenPopup("관리자 페이지 로그인");
+    if (ImGui::BeginPopupModal("관리자 페이지 로그인", nullptr, ImGuiWindowFlags_NoResize)) {
+        ImGui::Text("Password: ");
+        ImGui::SameLine();
+
+        // [비활성화] 다음 InputText 필드에 커서 위치
+        // ImGui::SetKeyboardFocusHere(0);
+
+        // 비밀번호 입력 폼 생성
+        // 엔터키 입력 시 true 반환
+        bool enter = ImGui::InputText("##password", inputPass, sizeof(inputPass),
+                ImGuiInputTextFlags_Password
+                | ImGuiInputTextFlags_CharsNoBlank
+                | ImGuiInputTextFlags_EnterReturnsTrue);
+        // 닫힘 버튼 추가
+        ImGui::SetCursorPos(ImVec2(100, 100));
+        if (ImGui::Button("Close##2", ImVec2(70, 30)))
+        {
+            DebugLog::AddLog("로그인 팝업 닫힘");
+            Page::_drawSignIn = false;
+            wrongPassFlag = false;
+        }
+        // 로그인 버튼 추가
+        ImGui::SetCursorPos(ImVec2(200, 100));
+        if (enter || ImGui::Button("로그인##1", ImVec2(70, 30))) {
+            DebugLog::AddLog("로그인 버튼 클릭");
+            DebugLog::AddLog("입력한 비밀번호: %s", inputPass);
+            // 비밀번호 일치 시 관리자 페이지로 전환
+            if (program.equalPassword(inputPass)) {
+                wrongPassFlag = false;
                 Page::_drawSignIn = false;
                 Page::_drawMenuID = ViewMode::ADMIN;
             }
+            else {
+                wrongPassFlag = true;
+            }
         }
-        ImGui::EndPopup();
+        // 비밀번호 틀릴 시 창이 닫힐때까지 메세지 출력
+        if (wrongPassFlag) {
+            ImGui::SetCursorPos(ImVec2(5, 70));
+            ImGui::Text("잘못된 비밀번호");
+        }
     }
+    // 팝업 그리기 종료
+    ImGui::EndPopup();
 }
-void Page::_addDisplayBeverage(VendingMachine &machine, const ImVec2 &start)
+
+/*
+ * 음료의 정보를 출력하는 단위 함수
+ * 상품명, 가격, 구매버튼을 출력한다.
+ */
+void Page::_addDisplayBeverage(Program &program, const ImVec2 &start)
 {
+    VendingMachine &machine = program.getMachine();
     ImVec2 ratio;
 
     for (int i = 0; i < 6; i++) {
@@ -81,17 +152,27 @@ void Page::_addDisplayBeverage(VendingMachine &machine, const ImVec2 &start)
         std::string priceLabel("가격: " + std::to_string(rack.getPrice()));
 
         ratio = start + ImVec2((i % 3) * 0.15f, (i / 3) * 0.22f);
+        // 상품명 추가
         __addDisplayPanel(menuLabel.c_str(), ratio);
+        // 가격 추가
         __addDisplayPanel(priceLabel.c_str(), ratio + ImVec2(0, 0.04f));
+        // 구매버튼 추가
         __addBuyButton(machine, rack, ratio + ImVec2(0, 0.08f));
     }
 }
 
-void Page::_addPaymentPanel(VendingMachine &machine, const ImVec2 &start)
+/*
+ * 금액 계산을 위한 UI 생성 함수
+ * 화폐 버튼, 반환 버튼 등 버튼 추가
+ * 투입된 금액, 잔액 부족 시 텍스트 알림
+ */
+void Page::_addPaymentPanel(Program &program, const ImVec2 &start)
 {
+    VendingMachine &machine = program.getMachine();
     ImVec2 ratio;
     ImVec2 currentBalanceRatio(0.5f, 0.6f);
 
+    // 화폐 버튼 추가
     ImGui::SetCursorPos(getVec2(start));
     ImGui::Text("투입할 금액");
     for (int i = 0; i < 5; i++) {
@@ -99,31 +180,65 @@ void Page::_addPaymentPanel(VendingMachine &machine, const ImVec2 &start)
         ratio = start + ImVec2(0.0f, 0.05f) + ImVec2((i % 3) * 0.1f, (i / 3) * 0.12f);
         __addCoinButton(machine, tray, ratio);
     }
+    // 잔액 UI 그리기
     ImGui::SetCursorPos(getVec2(currentBalanceRatio));
     ImGui::Text("현재 잔액: ");
     ImGui::SameLine();
     ImGui::Text("%d원", machine.getBalance());
-    /* Need edit */
-    // 잔액 부족 시 추가 출력
+    // 잔돈 부족 시 텍스트 추가
+    if (machine.getAlert()) {
+        ImGui::SetCursorPos(getVec2(currentBalanceRatio + ImVec2(0, -0.05f)));
+        ImGui::Text("잔돈 부족");
+    }
+    // 반환 버튼 추가
     ImGui::SetCursorPos(getVec2(currentBalanceRatio + ImVec2(0.0f, 0.05f)));
     if (ImGui::Button("반환", ImVec2(150, 60))) {
         DebugLog::AddLog("반환 버튼 클릭");
+        if (machine.getBalance() > 0) {
+            try
+            {
+                // 반환 함수 호출
+                machine.returnChange();
+            }
+            catch (const std::logic_error &e)
+            {
+                DebugLog::AddLog("%s", e.what());
+            }
+        }
     }
 }
 
+/*
+ * 단순 텍스트 출력 함수
+ */
 void Page::__addDisplayPanel(const char *label, const ImVec2 &ratio)
 {
     ImGui::SetCursorPos(getVec2(ratio));
     ImGui::Text("%s", label);
 }
 
+/*
+ * 구매 버튼 추가 함수
+ */
 void Page::__addBuyButton(VendingMachine &machine, Shelf &rack, const ImVec2 &ratio)
 {
-    
+    // 버튼 위치 지정
+    ImGui::SetCursorPos(getVec2(ratio));
+    // 예외 상황시 구매 버튼 스킵
+    if (rack.getAmount() == 0) {
+        ImGui::Button("매진", ImVec2(100, 60));
+        return ;
+    }
+    else if (machine.getBalance() < rack.getPrice()) {
+        ImGui::Button("구매 불가", ImVec2(100, 60));
+        return ;
+    }
+    // 상품을 구매 가능한 상황일 경우
     std::string label("구매##" + std::to_string(rack.getID()));
 
-    ImGui::SetCursorPos(getVec2(ratio)); // 버튼 위치 지정
-    ImGui::PushID(rack.getID()); // 버튼 구별을 위한 식별자 추가
+    // 버튼 구별을 위한 식별자 추가
+    ImGui::PushID(rack.getID());
+    // 구매 버튼 추가
     if (ImGui::Button(label.c_str(), ImVec2(100, 60))) {
         DebugLog::AddLog("%s 구매 버튼 클릭", rack.getLabelCstring());
         try
@@ -141,6 +256,11 @@ void Page::__addBuyButton(VendingMachine &machine, Shelf &rack, const ImVec2 &ra
     ImGui::PopID(); // 식별자 해제
 }
 
+/*
+ * 화폐 버튼을 추가하는 단위 함수
+ * 10, 50, 100, 500, 1000원 버튼을 추가
+ * 클릭 시 투입 화폐를 증가한다
+ */
 void Page::__addCoinButton(VendingMachine &machine, CashTray &tray, const ImVec2 &ratio)
 {
     std::string label(std::to_string(tray.getLabel())+ "원");
@@ -148,8 +268,14 @@ void Page::__addCoinButton(VendingMachine &machine, CashTray &tray, const ImVec2
     ImGui::SetCursorPos(getVec2(ratio));
     if (ImGui::Button(label.c_str(), ImVec2(90, 60))) {
         DebugLog::AddLog("%s 동전 버튼 클릭", label.c_str());
-        /* Function */
-        machine.deposit(tray.getID());
+        // 금액 상한 체크
+        if (tray.getLabel() + machine.getBalance()> 7000) {
+            DebugLog::AddLog("금액 상한 도달");
+        }
+        else {
+            // 클릭한 화폐를 증가
+            machine.deposit(tray.getID());
+        }
     }
 }
 
@@ -159,12 +285,21 @@ void Page::__addCoinButton(VendingMachine &machine, CashTray &tray, const ImVec2
  *
  **/
 
+/*
+ * 창 생성시 기본적으로 적용할 옵션 적용
+ * 사이즈 조절 불가, 창 이동 불가, 창 줄이기 불가
+ * 프로그램 창이 아닌 프로그램 내부의 창을 의미
+ */
 void Page::__beginDefaultProps(const char *title)
 {
     ImGui::Begin(title, nullptr,
     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 }
 
+/*
+ * 창의 사이즈와 위치를 프로그램 창의 비율 기반으로 지정
+ * 프로그램 창의 크기가 조절되어도 UI가 비율에 따라 조정됨
+ */
 void Page::__setWindowProps(const ImVec2 &posRatio, const ImVec2 &sizeRatio)
 {
     ImGui::SetWindowPos(getVec2(posRatio));

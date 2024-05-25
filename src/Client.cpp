@@ -50,6 +50,13 @@ void Client::clientInit(void)
         throw std::runtime_error("inet_pton() failed.");
 }
 
+void Client::tryConnect(void)
+{
+    if (connect(_fd, reinterpret_cast<sockaddr *>(&_addr), sizeof(_addr)) == -1)
+        throw std::runtime_error("connect() failed.");
+    run();
+}
+
 /*
  * 서버 구동
  */
@@ -159,4 +166,13 @@ void Client::addToBuf(const std::string &str)
 void Client::addToBuf(const char *str)
 {
     readBuf.fill(str);
+}
+
+void Client::acceptLoop(Client &client)
+{
+    socklen_t len = sizeof(client._addr);
+    errno = 0;
+    int client_fd = accept(client._fd, reinterpret_cast<sockaddr *>(&client._addr), &len);
+    if (client_fd == -1 && (errno != EAGAIN && errno != EWOULDBLOCK))
+        throw std::runtime_error("accept() failed.");
 }

@@ -11,6 +11,7 @@ private:
     Shelf       _rack[6];
     CashTray    _cashBox[5];
     int         _remainBalance;
+    bool        _noChangeAlert;
 
 public:
     VendingMachine();
@@ -24,13 +25,15 @@ public:
     void deposit(int id);
     void withdraw(int id);
     void settlement(void);
-    void returnCharge(void);
+    void returnChange(void);
+    void checkChange(void) noexcept;
 
 public:
     std::string getLabel(void) const noexcept;
     Shelf &getRack(int idx);
     CashTray &getCashBox(int idx);
     int getBalance(void) const noexcept;
+    bool getAlert(void) const noexcept;
 
 public:
     void setLabel(const std::string label);
