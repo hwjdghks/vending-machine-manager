@@ -34,10 +34,9 @@ private: /* Admin */
     void _addCurrencyInfo();
 
 private: /* Sales utility */
+    static void __addDisplayPanel(const char *label, const ImVec2 &ratio);
     static void __addBuyButton(VendingMachine &machine, Shelf &rack, const ImVec2 &ratio);
     static void __addCoinButton(VendingMachine &machine, CashTray &tray, const ImVec2 &ratio);
-    static void __addDisplayPanel(const char *label, const ImVec2 &ratio);
-    void __addImage();
 
 private: /* Admin utility */
     void __addBeverageInfo();

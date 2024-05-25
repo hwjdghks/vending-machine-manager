@@ -1,7 +1,5 @@
 #include "Shelf.hpp"
 
-Shelf::Shelf() {}
-
 Shelf::Shelf(int id, const std::string &label, int price)
 : _id(id), _label(label), _price(price)
 {

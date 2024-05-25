@@ -16,7 +16,6 @@ private:
     MyQueue<Beverage>   _shelf;
 
 public:
-    Shelf(); // dummy
     Shelf(int id, const std::string &label, int price);
     ~Shelf();
 

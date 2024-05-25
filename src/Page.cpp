@@ -69,75 +69,6 @@ void Page::drawAdminWindows()
 }
 
 /*
- * 관리자 페이지로 넘어가기 위한 UI를 그리는 함수
- */
-void Page::_drawSignInWindows(Program &program, const ImVec2 &start)
-{
-    static bool wrongPassFlag = false;
-    static char inputPass[100]; // 비밀번호 입력용 버퍼
-
-    // 버퍼 초기화
-    memset(inputPass, 0, sizeof(inputPass));
-    // 판매 화면에 페이지 전환 버튼 추가
-    ImGui::SetCursorPos(getVec2(start));
-    if (ImGui::Button("관리자 페이지 전환", ImVec2(170, 60))) {
-        DebugLog::AddLog("관리자 페이지 전환 버튼 클릭");
-        _drawSignIn = true;
-    }
-    // 버튼 클릭하지 않으면 여기서 그리기 종료
-    if (_drawSignIn == false)
-        return ;
-
-    // 로그인 팝업 창 구현
-    ImGui::SetNextWindowSize(ImVec2(300, 150));
-    ImGui::OpenPopup("관리자 페이지 로그인");
-    if (ImGui::BeginPopupModal("관리자 페이지 로그인", nullptr, ImGuiWindowFlags_NoResize)) {
-        ImGui::Text("Password: ");
-        ImGui::SameLine();
-
-        // [비활성화] 다음 InputText 필드에 커서 위치
-        // ImGui::SetKeyboardFocusHere(0);
-
-        // 비밀번호 입력 폼 생성
-        // 엔터키 입력 시 true 반환
-        bool enter = ImGui::InputText("##password", inputPass, sizeof(inputPass),
-                ImGuiInputTextFlags_Password
-                | ImGuiInputTextFlags_CharsNoBlank
-                | ImGuiInputTextFlags_EnterReturnsTrue);
-        // 닫힘 버튼 추가
-        ImGui::SetCursorPos(ImVec2(100, 100));
-        if (ImGui::Button("Close##2", ImVec2(70, 30)))
-        {
-            DebugLog::AddLog("로그인 팝업 닫힘");
-            Page::_drawSignIn = false;
-            wrongPassFlag = false;
-        }
-        // 로그인 버튼 추가
-        ImGui::SetCursorPos(ImVec2(200, 100));
-        if (enter || ImGui::Button("로그인##1", ImVec2(70, 30))) {
-            DebugLog::AddLog("로그인 버튼 클릭");
-            DebugLog::AddLog("입력한 비밀번호: %s", inputPass);
-            // 비밀번호 일치 시 관리자 페이지로 전환
-            if (program.equalPassword(inputPass)) {
-                wrongPassFlag = false;
-                Page::_drawSignIn = false;
-                Page::_drawMenuID = ViewMode::ADMIN;
-            }
-            else {
-                wrongPassFlag = true;
-            }
-        }
-        // 비밀번호 틀릴 시 창이 닫힐때까지 메세지 출력
-        if (wrongPassFlag) {
-            ImGui::SetCursorPos(ImVec2(5, 70));
-            ImGui::Text("잘못된 비밀번호");
-        }
-    }
-    // 팝업 그리기 종료
-    ImGui::EndPopup();
-}
-
-/*
  * 음료의 정보를 출력하는 단위 함수
  * 상품명, 가격, 구매버튼을 출력한다.
  */
@@ -206,6 +137,75 @@ void Page::_addPaymentPanel(Program &program, const ImVec2 &start)
             }
         }
     }
+}
+
+/*
+ * 관리자 페이지로 넘어가기 위한 UI를 그리는 함수
+ */
+void Page::_drawSignInWindows(Program &program, const ImVec2 &start)
+{
+    static bool wrongPassFlag = false;
+    static char inputPass[100]; // 비밀번호 입력용 버퍼
+
+    // 버퍼 초기화
+    memset(inputPass, 0, sizeof(inputPass));
+    // 판매 화면에 페이지 전환 버튼 추가
+    ImGui::SetCursorPos(getVec2(start));
+    if (ImGui::Button("관리자 페이지 전환", ImVec2(170, 60))) {
+        DebugLog::AddLog("관리자 페이지 전환 버튼 클릭");
+        _drawSignIn = true;
+    }
+    // 버튼 클릭하지 않으면 여기서 그리기 종료
+    if (_drawSignIn == false)
+        return ;
+
+    // 로그인 팝업 창 구현
+    ImGui::SetNextWindowSize(ImVec2(300, 150));
+    ImGui::OpenPopup("관리자 페이지 로그인");
+    if (ImGui::BeginPopupModal("관리자 페이지 로그인", nullptr, ImGuiWindowFlags_NoResize)) {
+        ImGui::Text("Password: ");
+        ImGui::SameLine();
+
+        // [비활성화] 다음 InputText 필드에 커서 위치
+        // ImGui::SetKeyboardFocusHere(0);
+
+        // 비밀번호 입력 폼 생성
+        // 엔터키 입력 시 true 반환
+        bool enter = ImGui::InputText("##password", inputPass, sizeof(inputPass),
+                ImGuiInputTextFlags_Password
+                | ImGuiInputTextFlags_CharsNoBlank
+                | ImGuiInputTextFlags_EnterReturnsTrue);
+        // 닫힘 버튼 추가
+        ImGui::SetCursorPos(ImVec2(100, 100));
+        if (ImGui::Button("Close##2", ImVec2(70, 30)))
+        {
+            DebugLog::AddLog("로그인 팝업 닫힘");
+            Page::_drawSignIn = false;
+            wrongPassFlag = false;
+        }
+        // 로그인 버튼 추가
+        ImGui::SetCursorPos(ImVec2(200, 100));
+        if (enter || ImGui::Button("로그인##1", ImVec2(70, 30))) {
+            DebugLog::AddLog("로그인 버튼 클릭");
+            DebugLog::AddLog("입력한 비밀번호: %s", inputPass);
+            // 비밀번호 일치 시 관리자 페이지로 전환
+            if (program.equalPassword(inputPass)) {
+                wrongPassFlag = false;
+                Page::_drawSignIn = false;
+                Page::_drawMenuID = ViewMode::ADMIN;
+            }
+            else {
+                wrongPassFlag = true;
+            }
+        }
+        // 비밀번호 틀릴 시 창이 닫힐때까지 메세지 출력
+        if (wrongPassFlag) {
+            ImGui::SetCursorPos(ImVec2(5, 70));
+            ImGui::Text("잘못된 비밀번호");
+        }
+    }
+    // 팝업 그리기 종료
+    ImGui::EndPopup();
 }
 
 /*

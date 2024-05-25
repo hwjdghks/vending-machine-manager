@@ -1,7 +1,5 @@
 #include "CashTray.hpp"
 
-CashTray::CashTray() {}
-
 CashTray::CashTray(int id, int label)
 : _id(id), _label(label)
 {

@@ -1,5 +1,4 @@
 #include "utils.hpp"
-#include <type_traits>
 
 ImVec2 getVec2(const ImVec2 &ratio)
 {

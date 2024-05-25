@@ -15,7 +15,6 @@ private:
     MyStack<Currency> _cashBox;
 
 public:
-    CashTray();
     CashTray(int id, int label);
     ~CashTray();
 
