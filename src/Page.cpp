@@ -244,6 +244,7 @@ void Page::_addCurrencyInfo(Program &program, const ImVec2 &start)
     }
     ImGui::SetCursorPos(getVec2(start + ImVec2(0, 0.22f)));
     if (ImGui::Button("수금", BASIC_BUTTON_SIZE)) {
+        DebugLog::AddLog("수금 버튼 클릭");
         machine.settlement();
     }
 }

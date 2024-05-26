@@ -47,6 +47,7 @@ void VendingMachine::settlement(void)
 
     for (int i = 0; i < 5; i++)
         total_money += _cashBox[i].settlement();
+    DebugLog::AddLog("수금한 총 금액 %d원", total_money);
 }
 
 void VendingMachine::returnChange(void)
@@ -81,7 +82,6 @@ void VendingMachine::returnChange(void)
     }
     for (int i = 0; i < 5; i++) {
         for (int used = currency_used[i]; used; used--) {
-            printf("used: %d\n", used);
             _cashBox[i].withdraw();
         }
     }

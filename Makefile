@@ -15,7 +15,11 @@
 #CXX = clang++
 
 EXE = demo_app
-SRCS = main.cpp DebugLog.cpp Client.cpp Page.cpp Shelf.cpp CashTray.cpp VendingMachine.cpp Program.cpp
+SERVER = server
+
+CLIENT_SRCS = main.cpp
+SERVER_SRCS = server.cpp
+SRCS = DebugLog.cpp Client.cpp Page.cpp Shelf.cpp CashTray.cpp VendingMachine.cpp Program.cpp
 IMGUI_SRCS = imgui.cpp imgui_demo.cpp imgui_draw.cpp imgui_tables.cpp imgui_widgets.cpp
 BACKENDS_SRCS = imgui_impl_glfw.cpp imgui_impl_opengl3.cpp
 LIBS_SRCS = Buffer.cpp utils.cpp
@@ -32,6 +36,12 @@ OBJS = $(addprefix $(OBJS_DIR), $(SRCS:.cpp=.o))
 OBJS += $(addprefix $(OBJS_DIR), $(IMGUI_SRCS:.cpp=.o))
 OBJS += $(addprefix $(OBJS_DIR), $(BACKENDS_SRCS:.cpp=.o))
 OBJS += $(addprefix $(OBJS_DIR), $(LIBS_SRCS:.cpp=.o))
+
+C_OBJS = $(addprefix $(OBJS_DIR), $(CLIENT_SRCS:.cpp=.o))
+C_OBJS += $(OBJS)
+
+S_OBJS = $(addprefix $(OBJS_DIR), $(SERVER_SRCS:.cpp=.o))
+S_OBJS += $(OBJS)
 
 UNAME_S := $(shell uname -s)
 LINUX_GL_LIBS = -lGL
@@ -64,10 +74,13 @@ endif
 ## BUILD RULES
 ##---------------------------------------------------------------------
 
-all: $(EXE)
+all: $(EXE) $(SERVER)
 	@echo Build complete for $(ECHO_MESSAGE)
 
-$(EXE): $(OBJS)
+$(EXE): $(C_OBJS)
+	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
+
+$(SERVER): $(S_OBJS)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
 
 $(OBJS_DIR)%.o:$(SRCS_DIR)%.cpp
@@ -87,7 +100,7 @@ $(OBJS_DIR)%.o:$(LIBS_SRCS_DIR)%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 clean:
-	rm -rf $(EXE) $(OBJS_DIR) *.ini
+	rm -rf $(EXE) $(SERVER) $(OBJS_DIR) *.ini
 
 re:
 	make clean

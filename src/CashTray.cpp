@@ -34,6 +34,11 @@ int CashTray::settlement(void)
         deposit();
         count--;
     }
+    // 수금한 금액 로그 출력
+    if (count >= 0)
+        DebugLog::AddLog("[수금] %d원 개수: %d", _label, count);
+    else
+        DebugLog::AddLog("[보충] %d원 개수: %d", _label, -count);
     return _label * count;
 }
 

@@ -1,5 +1,5 @@
-#ifndef CLIENT_HPP
-#define CLIENT_HPP
+#ifndef SOCKET_HPP
+#define SOCKET_HPP
 
 #include "Buffer.hpp"
 #include "DebugLog.hpp"
@@ -18,7 +18,7 @@
 #define BACKLOG 5
 #define BUFSIZE 2048
 
-class Client
+class Socket
 {
 private:
     int _fd;
@@ -29,19 +29,13 @@ private:
     std::mutex _mutex;
 
 public:
-    Client();
-    ~Client();
+    Socket();
+    ~Socket();
 
 private:
     void init(void);
     int recvMsg(void);
     int sendMsg(void);
-
-public:
-    void serverInit(void);
-    void clientInit(void);
-    void tryConnect(void);
-    void run(void);
 
 public:
     int getFD(void);
@@ -53,8 +47,7 @@ public:
     void addToBuf(const char *str);
 
 private:
-    static void acceptLoop(Client &client);
-    static void recvLoop(Client &client);
-    static void sendLoop(Client &clinet);
+    static void recvLoop(Socket &client);
+    static void sendLoop(Socket &clinet);
 };
 #endif
