@@ -76,16 +76,18 @@ void Socket::init(void)
  */
 int Socket::recvMsg(void)
 {
-    std::lock_guard<std::mutex> lock(_mutex);
     char buf[BUFSIZE];
 
     std::memset(buf, 0, BUFSIZE);
     errno = 0;
-    ssize_t len = recv(_fd, buf, BUFSIZE - 1, 0);
+    ssize_t len = recv(getFD(), buf, BUFSIZE - 1, 0);
     // perror(strerror(errno));
     if (len == -1 && (errno != EAGAIN && errno != EWOULDBLOCK)) // 재시도할 상황이 아닌 경우 에러 발생
         throw std::runtime_error("fd " + std::to_string(_fd) + ": recv() failed : " + std::strerror(errno));
-    readBuf.fill(buf);
+    if (len > 0) {
+        printf("recv: %s\n", buf);
+        readBuf.fill(buf);
+    }
 }
 
 /*
@@ -93,10 +95,13 @@ int Socket::recvMsg(void)
  */
 int Socket::sendMsg(void)
 {
-    std::lock_guard<std::mutex> lock(_mutex);
+    if (writeBuf.empty())
+        return 1;
+
     std::string buf = writeBuf.flush();
+    printf("send: %s\n", buf.c_str());
     errno = 0;
-    ssize_t len = send(_fd, buf.c_str(), buf.size(), 0);
+    ssize_t len = send(getFD(), buf.c_str(), buf.size(), 0);
     // perror(strerror(errno));
     if (len == -1 && (errno != EAGAIN && errno != EWOULDBLOCK)) // 재시도할 상황이 아닌 경우 에러 발생
         throw std::runtime_error("fd " + std::to_string(_fd) + ": send() failed : " + std::strerror(errno));
@@ -127,17 +132,32 @@ void Socket::closeFD(void)
     _fd = -1;
 }
 
-void Socket::addToBuf(const std::string &str)
+void Socket::addToWrite(const std::string &str)
 {
     writeBuf.fill(str);
 }
 
-void Socket::addToBuf(const char *str)
+void Socket::addToWrite(const char *str)
 {
     writeBuf.fill(str);
 }
 
-std::string Socket::getBuf(void)
+void Socket::addToRead(const std::string &str)
+{
+    readBuf.fill(str);
+}
+
+void Socket::addToRead(const char *str)
+{
+    readBuf.fill(str);
+}
+
+std::string Socket::getFromWrite(void)
+{
+    return writeBuf.flush();
+}
+
+std::string Socket::getFromRead(void)
 {
     return readBuf.flush();
 }

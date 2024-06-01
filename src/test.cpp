@@ -1,91 +1,127 @@
 #include <iostream>
 #include <thread>
+#include <vector>
 #include <cstring>
-#include <sys/types.h>
+#include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <unistd.h>
-#include <vector>
-#include <mutex>
+#include <fcntl.h>
+#include <errno.h>
 
-std::vector<std::thread> threads;
-std::mutex mtx;
+#define PORT 6667
+#define MAX_CLIENTS 10
 
-void handle_client_read(int client_socket) {
-    char buffer[512];
+void handle_receive(int client_sock) {
+    char buffer[1024] = {0};
     while (true) {
-        ssize_t bytes_received = recv(client_socket, buffer, sizeof(buffer), 0);
-        if (bytes_received <= 0) {
+        int bytes_received = recv(client_sock, buffer, sizeof(buffer), 0);
+        if (bytes_received < 0) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                std::this_thread::yield();
+                continue;
+            } else {
+                std::cerr << "recv error: " << strerror(errno) << std::endl;
+                break;
+            }
+        } else if (bytes_received == 0) {
+            std::cout << "Client disconnected" << std::endl;
             break;
         }
-        std::cout << "Received: " << std::string(buffer, bytes_received) << std::endl;
+        buffer[bytes_received] = '\0';
+        std::cout << "Received from client: " << buffer << std::endl;
     }
-    close(client_socket);
+    close(client_sock);
 }
 
-void handle_client_write(int client_socket) {
+void handle_send(int client_sock) {
     std::string message;
-    while (std::getline(std::cin, message)) {
-        send(client_socket, message.c_str(), message.size(), 0);
+    while (true) {
+        std::getline(std::cin, message);
+        if (send(client_sock, message.c_str(), message.size(), 0) < 0) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                std::this_thread::yield();
+                continue;
+            } else {
+                std::cerr << "send error: " << strerror(errno) << std::endl;
+                break;
+            }
+        }
     }
-    close(client_socket);
+    close(client_sock);
 }
 
-void handle_client(int client_socket) {
-    std::thread read_thread(handle_client_read, client_socket);
-    std::thread write_thread(handle_client_write, client_socket);
+void handle_client(int client_sock) {
+    std::thread recv_thread(handle_receive, client_sock);
+    std::thread send_thread(handle_send, client_sock);
 
-    read_thread.join();
-    write_thread.join();
+    recv_thread.join();
+    send_thread.join();
 }
 
-void server(int port) {
-    int server_socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_socket == -1) {
-        std::cerr << "Failed to create socket\n";
-        return;
+void server() {
+    int server_sock, client_sock;
+    struct sockaddr_in address;
+    int opt = 1;
+    int addrlen = sizeof(address);
+
+    if ((server_sock = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+        perror("socket failed");
+        exit(EXIT_FAILURE);
+    }
+    std::cout << "Socket created" << std::endl;
+
+    if (setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
+        perror("setsockopt failed");
+        exit(EXIT_FAILURE);
     }
 
-    sockaddr_in server_addr;
-    std::memset(&server_addr, 0, sizeof(server_addr));
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = INADDR_ANY;
-    server_addr.sin_port = htons(port);
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(PORT);
 
-    if (bind(server_socket, (sockaddr*)&server_addr, sizeof(server_addr)) == -1) {
-        std::cerr << "Failed to bind socket\n";
-        close(server_socket);
-        return;
+    if (bind(server_sock, (struct sockaddr *)&address, sizeof(address)) < 0) {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
     }
+    std::cout << "Bind successful" << std::endl;
 
-    if (listen(server_socket, 10) == -1) {
-        std::cerr << "Failed to listen on socket\n";
-        close(server_socket);
-        return;
+    if (listen(server_sock, MAX_CLIENTS) < 0) {
+        perror("listen failed");
+        exit(EXIT_FAILURE);
     }
+    std::cout << "Listening on port " << PORT << std::endl;
+
+    // Set the server socket to non-blocking mode
+    fcntl(server_sock, F_SETFL, O_NONBLOCK);
+
+    std::vector<std::thread> client_threads;
 
     while (true) {
-        int client_socket = accept(server_socket, nullptr, nullptr);
-        if (client_socket == -1) {
-            std::cerr << "Failed to accept connection\n";
-            continue;
+        if ((client_sock = accept(server_sock, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                std::this_thread::yield();
+                continue;
+            } else {
+                perror("accept failed");
+                exit(EXIT_FAILURE);
+            }
         }
+        std::cout << "Accepted a connection. fd: " << client_sock << std::endl;
 
-        std::lock_guard<std::mutex> lock(mtx);
-        threads.emplace_back(handle_client, client_socket);
+        // Set the client socket to non-blocking mode
+        fcntl(client_sock, F_SETFL, O_NONBLOCK);
+
+        client_threads.emplace_back(handle_client, client_sock);
     }
 
-    close(server_socket);
-
-    // Join all threads before exiting the program
-    for (auto& t : threads) {
-        if (t.joinable()) {
-            t.join();
-        }
+    for (auto& thread : client_threads) {
+        thread.join();
     }
+
+    close(server_sock);
 }
 
 int main() {
-    server(6667);
+    server();
     return 0;
 }

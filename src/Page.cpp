@@ -30,9 +30,9 @@ ViewMode Page::getDrawID()
 void Page::drawSalesWindows(Program &program)
 {
     ImVec2 winPosRatio(0.0f, 0.0f);
-    ImVec2 winSizeRatio(0.75f, 1.0f);
-    ImVec2 displayBeverageRatio(0.07f, 0.1f);
-    ImVec2 paymentRatio(0.07f, 0.6f);
+    ImVec2 winSizeRatio(0.70f, 1.0f);
+    ImVec2 displayBeverageRatio(0.05f, 0.1f);
+    ImVec2 paymentRatio(0.05f, 0.6f);
     ImVec2 signInRatio(0.55f, 0.1f);
 
     // 창 시작시 기본 옵션 지정
@@ -54,9 +54,9 @@ void Page::drawSalesWindows(Program &program)
 void Page::drawAdminWindows(Program &program)
 {
     ImVec2 winPosRatio(0.0f, 0.0f);
-    ImVec2 winSizeRatio(0.75f, 1.0f);
-    ImVec2 beverageInfoRatio(0.07f, 0.1f);
-    ImVec2 currencyinfoRatio(0.07f, 0.63f);
+    ImVec2 winSizeRatio(0.70f, 1.0f);
+    ImVec2 beverageInfoRatio(0.05f, 0.1f);
+    ImVec2 currencyinfoRatio(0.05f, 0.63f);
     ImVec2 changePasswdRatio(0.55f, 0.2f);
     ImVec2 returnSalesRatio(0.55f, 0.1f);
 
@@ -180,10 +180,6 @@ void Page::_drawSignInWindows(Program &program, const ImVec2 &start)
     if (ImGui::BeginPopupModal("관리자 페이지 로그인", nullptr, ImGuiWindowFlags_NoResize)) {
         ImGui::Text("Password: ");
         ImGui::SameLine();
-
-        // [비활성화] 다음 InputText 필드에 커서 위치
-        // ImGui::SetKeyboardFocusHere(0);
-
         // 비밀번호 입력 폼 생성
         // 엔터키 입력 시 true 반환
         bool enter = ImGui::InputText("##password", inputPass, sizeof(inputPass),
@@ -243,7 +239,7 @@ void Page::_addCurrencyInfo(Program &program, const ImVec2 &start)
 
     for (int i = 0; i < 5; i++) {
         CashTray &tray = machine.getCashBox(i);
-        std::string label(std::to_string(tray.getLabel()) + "원 재고: " 
+        std::string label(std::to_string(tray.getLabel()) + "원 재고: "
                         + std::to_string(tray.getAmount()) + "개");
         ratio = start + ImVec2(0, i * 0.04f);
         __addDisplayPanel(label.c_str(), ratio);
@@ -403,7 +399,7 @@ void Page::__addBuyButton(Client &client, VendingMachine &machine, Shelf &rack, 
         DebugLog::AddLog("%s 구매 버튼 클릭", rack.getLabelCstring());
         try
         {
-            printf("%s 구매버튼 클릭\n", rack.getLabelCstring());
+            client.addToWrite(std::string(rack.getLabel() + " 구매 버튼 클릭"));
             machine.sell(rack.getID()); // 물품 판매. 재고 없을 시 에러 발생
         }
         catch (const std::logic_error& e)

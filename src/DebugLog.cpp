@@ -18,8 +18,8 @@ void DebugLog::AddLog(const char* fmt, ...)
 
 void DebugLog::Draw(const char *title)
 {
-    ImVec2 sizeRatio(0.25f, 1.0f);
-    ImVec2 posRatio(0.75f, 0.0f);
+    ImVec2 sizeRatio(0.30f, 1.0f);
+    ImVec2 posRatio(0.70f, 0.0f);
 
     ImGui::Begin(title, nullptr,
                  ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);

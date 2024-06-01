@@ -27,8 +27,8 @@ void Client::tryConnect(void)
 retry:
         errno = 0;
         if (connect(_fd, reinterpret_cast<sockaddr *>(&_addr), sizeof(_addr)) == -1) {
-            if (errno != EINPROGRESS)
-                goto retry;
+            if (errno == EINPROGRESS)
+                ;
             else {
                 perror(strerror(errno));
                 throw std::runtime_error("connect() failed.");
@@ -71,6 +71,7 @@ void Client::changeState(void)
 
 void Client::recvLoop(void)
 {
+    DebugLog::AddLog("recv thread on");
     while (isConnected()) {
         try
         {
@@ -81,11 +82,13 @@ void Client::recvLoop(void)
             std::cerr << e.what() << '\n';
             changeState();
         }
+        std::this_thread::yield();
     }
 }
 
 void Client::sendLoop(void)
 {
+    DebugLog::AddLog("send thread on");
     while (isConnected()) {
         try
         {
@@ -96,5 +99,6 @@ void Client::sendLoop(void)
             std::cerr << e.what() << '\n';
             changeState();
         }
+        std::this_thread::yield();
     }
 }

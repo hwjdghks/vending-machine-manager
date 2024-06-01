@@ -43,8 +43,11 @@ protected:
     void closeFD(void);
 
 public:
-    void addToBuf(const std::string &str);
-    void addToBuf(const char *str);
-    std::string getBuf(void);
+    void addToWrite(const std::string &str);
+    void addToWrite(const char *str);
+    void addToRead(const std::string &str);
+    void addToRead(const char *str);
+    std::string getFromWrite(void);
+    std::string getFromRead(void);
 };
 #endif

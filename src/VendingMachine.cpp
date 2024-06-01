@@ -101,6 +101,9 @@ void VendingMachine::returnChange(void)
     DebugLog::AddLog("남은 화폐 개수  : %s", buffer);
 }
 
+/*
+ * 남은 화폐 중 어느 종류라도 3개 이하면 잔돈 부족 알람 출력
+ */
 void VendingMachine::checkChange(void) noexcept
 {
     bool flag = false;

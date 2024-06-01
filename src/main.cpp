@@ -54,6 +54,9 @@ void *function1(void *arg)
             Page::drawSalesWindows(*program);
         else
             Page::drawAdminWindows(*program);
+        std::string sock_log = program->getClient().getFromRead();
+        if (!sock_log.empty())
+            DebugLog::AddLog("%s", sock_log.c_str());
         // ImGui 렌더링
         DebugLog::Draw("testing Log");
         ImGui::Render();
