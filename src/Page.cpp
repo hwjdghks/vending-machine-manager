@@ -440,9 +440,13 @@ void Page::__addCoinButton(VendingMachine &machine, CashTray &tray, const ImVec2
     ImGui::SetCursorPos(getVec2(ratio));
     if (ImGui::Button(label.c_str(), ImVec2(90, 60))) {
         DebugLog::AddLog("%s 동전 버튼 클릭", label.c_str());
-        // 금액 상한 체크
+        // 금액 상한 검사
         if (tray.getLabel() + machine.getBalance()> 7000) {
             DebugLog::AddLog("금액 상한 도달");
+        }
+        // 1000원 지폐 투입 개수 검사
+        else if (tray.getID() == 4 && machine.getMax1000won() >= 5) {
+            DebugLog::AddLog("1000원 지폐는 최대 5장까지 투입 가능");
         }
         else {
             // 클릭한 화폐를 증가

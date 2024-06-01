@@ -12,6 +12,7 @@ private:
     CashTray    _cashBox[5];
     int         _remainBalance;
     bool        _noChangeAlert;
+    int         _max1000won;
 
 public:
     VendingMachine();
@@ -34,6 +35,7 @@ public:
     CashTray &getCashBox(int idx);
     int getBalance(void) const noexcept;
     bool getAlert(void) const noexcept;
+    int getMax1000won(void) const noexcept;
 
 public:
     void setLabel(const std::string label);
