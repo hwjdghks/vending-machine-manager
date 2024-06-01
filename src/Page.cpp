@@ -57,9 +57,9 @@ void Page::drawAdminWindows(Program &program)
     ImVec2 winSizeRatio(0.70f, 1.0f);
     ImVec2 beverageInfoRatio(0.05f, 0.1f);
     ImVec2 currencyinfoRatio(0.05f, 0.63f);
-    ImVec2 changePasswdRatio(0.55f, 0.2f);
     ImVec2 returnSalesRatio(0.55f, 0.1f);
-
+    ImVec2 changePasswdRatio(0.55f, 0.2f);
+    ImVec2 connectServerRatio(0.55f, 0.4f);
     // 창 시작시 기본 옵션 지정
     __beginDefaultProps("Admin Menu");
     __setWindowProps(winPosRatio, winSizeRatio);
@@ -67,15 +67,11 @@ void Page::drawAdminWindows(Program &program)
     _addBeveragesInfo(program, beverageInfoRatio);
     _addCurrencyInfo(program, currencyinfoRatio);
     _addChangePasswd(program, changePasswdRatio);
+    _addconnectServer(program, connectServerRatio);
     ImGui::SetCursorPos(getVec2(returnSalesRatio));
     if (ImGui::Button("판매 페이지 전환", BASIC_BUTTON_SIZE)) {
         DebugLog::AddLog("판매 페이지 전환 버튼 클릭");
         _drawMenuID = ViewMode::SALES;
-    }
-    ImGui::SetCursorPos(getVec2(returnSalesRatio + ImVec2(0, 0.3f)));
-    if (ImGui::Button("서버 연결", BASIC_BUTTON_SIZE)) {
-        DebugLog::AddLog("서버 연결 버튼 클릭");
-        program.getClient().tryConnect();
     }
     ImGui::End();
 }
@@ -362,6 +358,26 @@ void Page::_addChangePasswd(Program &program, const ImVec2 &start)
     }
     // 팝업 그리기 종료
     ImGui::EndPopup();
+}
+
+void Page::_addconnectServer(Program &program, const ImVec2 &start)
+{
+    Client &client = program.getClient();
+    ImGui::SetCursorPos(getVec2(start));
+    // 서버와 연결되지 않았을 때
+    if (!client.isConnected()) {
+        if (ImGui::Button("서버 연결", BASIC_BUTTON_SIZE)) {
+            DebugLog::AddLog("서버 연결 버튼 클릭");
+            program.getClient().tryConnect();
+        }
+    }
+    // 서버와 연결 중일 때
+    else {
+        if (ImGui::Button("서버 연결 종료", BASIC_BUTTON_SIZE)) {
+            DebugLog::AddLog("서버 연결 종료 버튼 클릭");
+            program.getClient().closeConnect();
+        }
+    }
 }
 
 /*

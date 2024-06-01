@@ -15,6 +15,7 @@ public:
 public:
     void init(void);
     void tryConnect(void);
+    void closeConnect(void);
     void run(void);
     bool isConnected(void);
     void changeState(void);

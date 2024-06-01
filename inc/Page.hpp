@@ -32,6 +32,7 @@ private: /* Admin */
     static void _addBeveragesInfo(Program &program, const ImVec2 &start);
     static void _addCurrencyInfo(Program &program, const ImVec2 &start);
     static void _addChangePasswd(Program &program, const ImVec2 &start);
+    static void _addconnectServer(Program &program, const ImVec2 &start);
 
 private: /* Sales utility */
     static void __addDisplayPanel(const char *label, const ImVec2 &ratio);

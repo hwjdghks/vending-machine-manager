@@ -4,6 +4,10 @@ Client::Client() : _isConnect(false) {}
 
 Client::~Client() {}
 
+/*
+ * 클라이언트용 소켓 초기화 함수
+ * 미리 매크로로 지정된 IP로 초기화
+ */
 void Client::init(void)
 {
     try
@@ -24,11 +28,10 @@ void Client::tryConnect(void)
     try
     {
         init();
-retry:
         errno = 0;
-        if (connect(_fd, reinterpret_cast<sockaddr *>(&_addr), sizeof(_addr)) == -1) {
+        while (connect(_fd, reinterpret_cast<sockaddr *>(&_addr), sizeof(_addr)) == -1) {
             if (errno == EINPROGRESS)
-                ;
+                continue;
             else {
                 perror(strerror(errno));
                 throw std::runtime_error("connect() failed.");
@@ -44,6 +47,15 @@ retry:
     }
 }
 
+void Client::closeConnect(void)
+{
+    changeState();
+    closeFD();
+}
+
+/*
+ * recv와 send를 분리하여 멀티 쓰레드로 서버와 통신
+ */
 void Client::run(void)
 {
     std::thread recvThread(&Client::recvLoop, std::ref(*this));
@@ -54,12 +66,18 @@ void Client::run(void)
     sendThread.detach();
 }
 
+/*
+ * 연결 상태 플래그 반환
+ */
 bool Client::isConnected(void)
 {
     std::lock_guard<std::mutex> lock(_mutex);
     return _isConnect;
 }
 
+/*
+ * 연결 상태 변경
+ */
 void Client::changeState(void)
 {
     std::lock_guard<std::mutex> lock(_mutex);
@@ -69,6 +87,10 @@ void Client::changeState(void)
         _isConnect = false;
 }
 
+/*
+ * 멀티 쓰레드용 recv loop 함수
+ * 연결중인 동안 루프를 돌면서 주기적으로 소켓에서 데이터를 읽어옴
+ */
 void Client::recvLoop(void)
 {
     DebugLog::AddLog("recv thread on");
@@ -86,6 +108,10 @@ void Client::recvLoop(void)
     }
 }
 
+/*
+ * 멀티 쓰레드용 send loop 함수
+ * 연결중인 동안 루프를 돌면서 주기적으로 소켓에 데이터를 보냄
+ */
 void Client::sendLoop(void)
 {
     DebugLog::AddLog("send thread on");
