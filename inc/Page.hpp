@@ -35,7 +35,7 @@ private: /* Admin */
 
 private: /* Sales utility */
     static void __addDisplayPanel(const char *label, const ImVec2 &ratio);
-    static void __addBuyButton(VendingMachine &machine, Shelf &rack, const ImVec2 &ratio);
+    static void __addBuyButton(Client &client, VendingMachine &machine, Shelf &rack, const ImVec2 &ratio);
     static void __addCoinButton(VendingMachine &machine, CashTray &tray, const ImVec2 &ratio);
 
 private: /* Admin utility */

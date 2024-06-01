@@ -20,6 +20,7 @@ public:
     void fill(const char *str) noexcept;
     std::string flush(void) noexcept;
     void rollback(std::string str, std::size_t pos) noexcept;
+    bool empty(void) const noexcept;
 };
 
 #endif

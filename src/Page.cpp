@@ -72,6 +72,11 @@ void Page::drawAdminWindows(Program &program)
         DebugLog::AddLog("판매 페이지 전환 버튼 클릭");
         _drawMenuID = ViewMode::SALES;
     }
+    ImGui::SetCursorPos(getVec2(returnSalesRatio + ImVec2(0, 0.3f)));
+    if (ImGui::Button("서버 연결", BASIC_BUTTON_SIZE)) {
+        DebugLog::AddLog("서버 연결 버튼 클릭");
+        program.getClient().tryConnect();
+    }
     ImGui::End();
 }
 
@@ -81,6 +86,7 @@ void Page::drawAdminWindows(Program &program)
  */
 void Page::_addDisplayBeverage(Program &program, const ImVec2 &start)
 {
+    Client &client = program.getClient();
     VendingMachine &machine = program.getMachine();
     ImVec2 ratio;
 
@@ -95,7 +101,7 @@ void Page::_addDisplayBeverage(Program &program, const ImVec2 &start)
         // 가격 추가
         __addDisplayPanel(priceLabel.c_str(), ratio + ImVec2(0, 0.04f));
         // 구매버튼 추가
-        __addBuyButton(machine, rack, ratio + ImVec2(0, 0.08f));
+        __addBuyButton(client, machine, rack, ratio + ImVec2(0, 0.08f));
     }
 }
 
@@ -374,7 +380,7 @@ void Page::__addDisplayPanel(const char *label, const ImVec2 &ratio)
 /*
  * 구매 버튼 추가 함수
  */
-void Page::__addBuyButton(VendingMachine &machine, Shelf &rack, const ImVec2 &ratio)
+void Page::__addBuyButton(Client &client, VendingMachine &machine, Shelf &rack, const ImVec2 &ratio)
 {
     // 버튼 위치 지정
     ImGui::SetCursorPos(getVec2(ratio));

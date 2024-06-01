@@ -20,7 +20,7 @@
 
 class Socket
 {
-private:
+protected:
     int _fd;
     int _id;
     struct sockaddr_in _addr;
@@ -28,16 +28,16 @@ private:
     Buffer writeBuf;
     std::mutex _mutex;
 
-public:
+protected:
     Socket();
-    ~Socket();
+    virtual ~Socket();
 
-private:
-    void init(void);
+protected:
+    virtual void init(void);
     int recvMsg(void);
     int sendMsg(void);
 
-public:
+protected:
     int getFD(void);
     void setFD(int fd);
     void closeFD(void);
@@ -45,9 +45,6 @@ public:
 public:
     void addToBuf(const std::string &str);
     void addToBuf(const char *str);
-
-private:
-    static void recvLoop(Socket &client);
-    static void sendLoop(Socket &clinet);
+    std::string getBuf(void);
 };
 #endif

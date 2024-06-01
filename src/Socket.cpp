@@ -82,7 +82,7 @@ int Socket::recvMsg(void)
     std::memset(buf, 0, BUFSIZE);
     errno = 0;
     ssize_t len = recv(_fd, buf, BUFSIZE - 1, 0);
-    strerror(errno);
+    // perror(strerror(errno));
     if (len == -1 && (errno != EAGAIN && errno != EWOULDBLOCK)) // 재시도할 상황이 아닌 경우 에러 발생
         throw std::runtime_error("fd " + std::to_string(_fd) + ": recv() failed : " + std::strerror(errno));
     readBuf.fill(buf);
@@ -97,7 +97,7 @@ int Socket::sendMsg(void)
     std::string buf = writeBuf.flush();
     errno = 0;
     ssize_t len = send(_fd, buf.c_str(), buf.size(), 0);
-    strerror(errno);
+    // perror(strerror(errno));
     if (len == -1 && (errno != EAGAIN && errno != EWOULDBLOCK)) // 재시도할 상황이 아닌 경우 에러 발생
         throw std::runtime_error("fd " + std::to_string(_fd) + ": send() failed : " + std::strerror(errno));
     if (static_cast<std::size_t>(len) < buf.size()) // 일부분만 전송됐을 경우
@@ -122,52 +122,22 @@ void Socket::setFD(int fd)
 void Socket::closeFD(void)
 {
     std::lock_guard<std::mutex> lock(_mutex);
-    close(_fd);
+    if (_fd != -1)
+        close(_fd);
     _fd = -1;
 }
 
 void Socket::addToBuf(const std::string &str)
 {
-    readBuf.fill(str);
+    writeBuf.fill(str);
 }
 
 void Socket::addToBuf(const char *str)
 {
-    readBuf.fill(str);
+    writeBuf.fill(str);
 }
 
-void Socket::recvLoop(Socket &client)
+std::string Socket::getBuf(void)
 {
-    while (true) { /* Need Edit */ /* 프로그램 종료 전까지 실행 */
-        if (client.getFD() != -1) { // 소켓이 연결된 경우에만 실행
-            try
-            {
-                client.recvMsg();
-            }
-            catch (const std::exception& e) // 에러 발생시 연결 종료
-            {
-                std::cerr << e.what() << '\n';
-                client.closeFD();
-            }
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    }
-}
-
-void Socket::sendLoop(Socket &client)
-{
-    while (true) { /* Need Edit */ /* 프로그램 종료 전까지 실행 */
-        if (client.getFD() != -1) { // 소켓이 연결된 경우에만 실행
-            try
-            {
-                client.sendMsg();
-            }
-            catch (const std::exception& e) // 에러 발생시 연결 종료
-            {
-                std::cerr << e.what() << '\n';
-                client.closeFD();
-            }
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    }
+    return readBuf.flush();
 }

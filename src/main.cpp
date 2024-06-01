@@ -87,8 +87,10 @@ void *function2(void *arg) {
 
     return nullptr;
 }
+#include <signal.h>
 
 int main() {
+    signal(SIGPIPE, SIG_IGN);
     Program *program = new Program();
 
     std::thread windows(function1, program);

@@ -35,3 +35,8 @@ void Buffer::rollback(std::string str, std::size_t pos) noexcept
     std::lock_guard<std::mutex> lock(_mutex);
     _buf.insert(0, str.substr(pos));
 }
+
+bool Buffer::empty(void) const noexcept
+{
+    return _buf.empty();
+}
