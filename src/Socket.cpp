@@ -24,54 +24,6 @@ void Socket::init(void)
 }
 
 /*
- * 서버 소켓 초기화
- */
-// void Socket::serverInit(void)
-// {
-//     int dummy = 1;
-
-//     init(); // 공통 초기화
-//     _addr.sin_addr.s_addr = htonl(INADDR_ANY);
-//     if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &dummy, sizeof(dummy)) == -1) // 포트 재사용 옵션 설정
-//         throw std::runtime_error("setsockopt() failed.");
-//     if (bind(_fd, reinterpret_cast<sockaddr *>(&_addr), sizeof(_addr)) == -1)
-//         throw std::runtime_error("bind() failed.");
-//     if (listen(_fd, BACKLOG) == -1)
-//         throw std::runtime_error("listen() failed.");
-// }
-
-/*
- * 클라이언트 소켓 초기화
- */
-// void Socket::clientInit(void)
-// {
-//     init();
-//     if (inet_pton(AF_INET, CONNECTION_IP, &_addr.sin_addr.s_addr) != 1)
-//         throw std::runtime_error("inet_pton() failed.");
-// }
-
-// void Socket::tryConnect(void)
-// {
-//     if (connect(_fd, reinterpret_cast<sockaddr *>(&_addr), sizeof(_addr)) == -1)
-//         throw std::runtime_error("connect() failed.");
-//     run();
-// }
-
-/*
- * 서버 구동
- */
-// void Socket::run(void)
-// {
-//     std::thread acceptLoop(&Socket::acceptLoop, std::ref(*this));
-//     std::thread recvThread(&Socket::recvLoop, std::ref(*this));
-//     std::thread sendThread(&Socket::sendLoop, std::ref(*this));
-
-//     acceptLoop.join();
-//     recvThread.join();
-//     sendThread.join();
-// }
-
-/*
  * 메세지 수신
  */
 int Socket::recvMsg(void)

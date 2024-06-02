@@ -78,16 +78,20 @@ void VendingMachine::settlement(void)
  */
 void VendingMachine::returnChange(void)
 {
+    // 화폐 단위
     int currency[5] = { 10, 50, 100, 500, 1000 };
+    // 사용한 화폐
     int currency_used[5] = { 0 };
+    // 보유 화폐
     int currency_amount[5] = { 0 };
 
+    // 보유 화폐 초기화
     for (int i = 0; i < 5; i++)
         currency_amount[i] = _cashBox[i].getAmount();
 
     int i = 4;
     int temp_money = _remainBalance;
-
+    // 거스름돈 계산
     while (temp_money > 0 && i >= 0) {
         int amount = temp_money / currency[i];
         if (amount <= currency_amount[i]) {

@@ -13,8 +13,8 @@
 
 #define NUM_THREADS 2
 
-// 첫 번째 함수
-void *function1(void *arg)
+// 자판기 gui를 그리는 함수
+void *drawGui(void *arg)
 {
     if (!glfwInit())
         return nullptr;
@@ -58,7 +58,7 @@ void *function1(void *arg)
         if (!sock_log.empty())
             DebugLog::AddLog("%s", sock_log.c_str());
         // ImGui 렌더링
-        DebugLog::Draw("testing Log");
+        DebugLog::Draw("Detail log");
         ImGui::Render();
         // int display_w, display_h;
         // glfwGetFramebufferSize(window, &display_w, &display_h);
@@ -70,6 +70,10 @@ void *function1(void *arg)
         // OpenGL 버퍼 스왑
         glfwSwapBuffers(window);
     }
+    // 창 종료
+    /* Need Edit */
+    program->getClient().closeConnect();
+
     // ImGui 정리
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -78,25 +82,13 @@ void *function1(void *arg)
     // GLFW 정리
     glfwDestroyWindow(window);
     glfwTerminate();
-
-    // 창 종료
-    /* Need Edit */
     return nullptr;
 }
-
-// 두 번째 함수
-void *function2(void *arg) {
-    VendingMachine *machine = static_cast<VendingMachine *>(arg);
-
-    return nullptr;
-}
-#include <signal.h>
 
 int main() {
-    signal(SIGPIPE, SIG_IGN);
     Program *program = new Program();
 
-    std::thread windows(function1, program);
+    std::thread windows(drawGui, program);
     windows.join();
     delete program;
     return 0;

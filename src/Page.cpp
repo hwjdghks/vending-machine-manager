@@ -59,6 +59,7 @@ void Page::drawAdminWindows(Program &program)
     ImVec2 currencyinfoRatio(0.05f, 0.63f);
     ImVec2 returnSalesRatio(0.55f, 0.1f);
     ImVec2 changePasswdRatio(0.55f, 0.2f);
+    ImVec2 changeInfoRatio(0.55f, 0.3f);
     ImVec2 connectServerRatio(0.55f, 0.4f);
     // 창 시작시 기본 옵션 지정
     __beginDefaultProps("Admin Menu");
@@ -67,6 +68,7 @@ void Page::drawAdminWindows(Program &program)
     _addBeveragesInfo(program, beverageInfoRatio);
     _addCurrencyInfo(program, currencyinfoRatio);
     _addChangePasswd(program, changePasswdRatio);
+    _addChangeProductInfo(program, changeInfoRatio);
     _addconnectServer(program, connectServerRatio);
     ImGui::SetCursorPos(getVec2(returnSalesRatio));
     if (ImGui::Button("판매 페이지 전환", BASIC_BUTTON_SIZE)) {
@@ -178,7 +180,7 @@ void Page::_drawSignInWindows(Program &program, const ImVec2 &start)
         ImGui::SameLine();
         // 비밀번호 입력 폼 생성
         // 엔터키 입력 시 true 반환
-        bool enter = ImGui::InputText("##password", inputPass, sizeof(inputPass),
+        bool enter = ImGui::InputText("##password", inputPass, IM_ARRAYSIZE(inputPass),
                 ImGuiInputTextFlags_Password
                 | ImGuiInputTextFlags_CharsNoBlank
                 | ImGuiInputTextFlags_EnterReturnsTrue);
@@ -258,9 +260,9 @@ void Page::_addChangePasswd(Program &program, const ImVec2 &start)
     static char confirmPw[100];
 
     if (changePwFlag == false) {
-        memset(currentPw, 0, sizeof(currentPw));
-        memset(newPw, 0, sizeof(newPw));
-        memset(confirmPw, 0, sizeof(confirmPw));
+        std::memset(currentPw, 0, sizeof(currentPw));
+        std::memset(newPw, 0, sizeof(newPw));
+        std::memset(confirmPw, 0, sizeof(confirmPw));
     }
 
     ImGui::SetCursorPos(getVec2(start));
@@ -278,7 +280,7 @@ void Page::_addChangePasswd(Program &program, const ImVec2 &start)
 
         // 비밀번호 입력 폼 생성
         // 엔터키 입력 시 true 반환
-        ImGui::InputText("##current", currentPw, sizeof(currentPw),
+        ImGui::InputText("##current", currentPw, IM_ARRAYSIZE(currentPw),
                 ImGuiInputTextFlags_CharsNoBlank
                 | ImGuiInputTextFlags_EnterReturnsTrue);
         ImGui::Text("현재 비밀번호: ");
@@ -286,7 +288,7 @@ void Page::_addChangePasswd(Program &program, const ImVec2 &start)
 
         // 비밀번호 입력 폼 생성
         // 엔터키 입력 시 true 반환
-        ImGui::InputText("##change", newPw, sizeof(newPw),
+        ImGui::InputText("##change", newPw, IM_ARRAYSIZE(newPw),
                 ImGuiInputTextFlags_CharsNoBlank
                 | ImGuiInputTextFlags_EnterReturnsTrue);
         ImGui::Text("현재 비밀번호: ");
@@ -294,7 +296,7 @@ void Page::_addChangePasswd(Program &program, const ImVec2 &start)
 
         // 비밀번호 입력 폼 생성
         // 엔터키 입력 시 true 반환
-        ImGui::InputText("##confirm", confirmPw, sizeof(confirmPw),
+        ImGui::InputText("##confirm", confirmPw, IM_ARRAYSIZE(confirmPw),
                 ImGuiInputTextFlags_CharsNoBlank
                 | ImGuiInputTextFlags_EnterReturnsTrue);
         // 닫힘 버튼 추가
@@ -357,6 +359,111 @@ void Page::_addChangePasswd(Program &program, const ImVec2 &start)
         }
     }
     // 팝업 그리기 종료
+    ImGui::EndPopup();
+}
+
+void Page::_addChangeProductInfo(Program &program, const ImVec2 &start)
+{
+    VendingMachine &machine = program.getMachine();
+    // 버튼 클릭 여부
+    static bool changeInfoFlag = false;
+    // 변경 시도
+    static bool tryFlag = false;
+    // 변경 성공여부
+    static bool failedFlag = false;
+
+    static int rackID = -1;
+    static char labelBuf[1024];
+    static int priceBuf;
+
+    if (changeInfoFlag == false) {
+        std::memset(labelBuf, 0, sizeof(labelBuf));
+        priceBuf = 0;
+    }
+    ImGui::SetCursorPos(getVec2(start));
+    if (ImGui::Button("상품 정보 변경", BASIC_BUTTON_SIZE)) {
+        changeInfoFlag = true;
+    }
+    if (changeInfoFlag == false)
+        return ;
+    ImGui::OpenPopup("상품 정보 변경");
+    ImGui::SetNextWindowSize(ImVec2(500, 350));
+    if (ImGui::BeginPopupModal("상품 정보 변경", nullptr, ImGuiWindowFlags_NoResize)) {
+        // 상품 진열대 별 동작 구현
+        for (int i = 0; i < 6; i++) {
+            Shelf &rack = machine.getRack(i);
+            std::string label("슬롯 " + std::to_string(i + 1));
+            // 슬롯별 위치 지정
+            ImVec2 pos(30 + (i % 2) * 100, 50 + (i / 2) * 100);
+            ImGui::SetCursorPos(pos);
+            // 슬롯별 버튼 생성
+            if (ImGui::Button(label.c_str(), ImVec2(70, 70))) {
+                rackID = i;
+                tryFlag = false;
+                failedFlag = false;
+                // 누른 슬롯의 정보로 초기화
+                std::strcpy(labelBuf, rack.getLabelCstring());
+                priceBuf = rack.getPrice();
+            }
+        }
+        // 클릭한 진열대의 기존 정보 변경
+        ImGui::SetCursorPos(ImVec2(230, 50));
+        ImGui::Text("상품 정보 변경");
+        if (rackID > -1) {
+            Shelf &rack = machine.getRack(rackID);
+
+            // 상품명 출력및 수정칸. 공백 삽입 불가
+            ImGui::SetCursorPos(ImVec2(230, 95));
+            ImGui::Text("상품명: ");
+            ImGui::SameLine();
+            ImGui::InputText("inputLabel", labelBuf, IM_ARRAYSIZE(labelBuf),
+                    ImGuiInputTextFlags_CharsNoBlank);
+            // 상품 가격 출력및 수정칸. int 범위의 정수만 입력 가능
+            ImGui::SetCursorPos(ImVec2(230, 135));
+            ImGui::Text("   가격: ");
+            ImGui::SameLine();
+            ImGui::InputInt("inputPrice", &priceBuf, sizeof(&priceBuf));
+            // 변경사항 적용 결과 출력
+            ImGui::SetCursorPos(ImVec2(230, 170));
+            if (tryFlag == true && failedFlag == true) {
+                ImGui::Text("형식이 잘못 되었습니다.\n입력 값을 다시 확인하세요.");
+            }
+            else if (tryFlag == true) {
+                ImGui::Text("변경사항 적용 성공");
+            }
+            // 변경사항 적용 시도
+            ImGui::SetCursorPos(ImVec2(300, 220));
+            if (ImGui::Button("변경사항 적용", ImVec2(120, 40))) {
+                tryFlag = true;
+                // 잘못된 형식일 경우 원래 정보로 되돌린다
+                std::string backupLabel(rack.getLabel());
+                int backupPrice = rack.getPrice();
+                try
+                {
+                    // 변경사항 적용 시도
+                    rack.setLabel(labelBuf);
+                    rack.setPrice(priceBuf);
+                }
+                catch(const std::logic_error& e)
+                {
+                    // 적용 실패시 백업본으로 되돌림
+                    DebugLog::AddLog("%s", e.what());
+                    failedFlag = true;
+                    rack.setLabel(backupLabel);
+                    rack.setPrice(backupPrice);
+                }
+            }
+        }
+        // 닫기 버튼
+        ImGui::SetCursorPos(ImVec2(400, 300));
+        if (ImGui::Button("Close", ImVec2(70, 30))) {
+            DebugLog::AddLog("상품 정보 변경 팝업 닫힘");
+            changeInfoFlag = false;
+            failedFlag = false;
+            tryFlag = false;
+            rackID = -1;
+        }
+    }
     ImGui::EndPopup();
 }
 

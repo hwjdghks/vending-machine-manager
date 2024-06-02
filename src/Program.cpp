@@ -8,7 +8,7 @@ bool Program::equalPassword(const char *str) const noexcept
 {
     if (_password == std::string(str))
         return true;
-    else 
+    else
         return false;
 }
 

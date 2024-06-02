@@ -23,6 +23,10 @@ void Client::init(void)
     }
 }
 
+/*
+ * 서버에 연결을 시도하는 함수
+ * 연결 성공시 송신과 수신을 멀티 쓰레드로 분리하여 독립적으로 서버와 통신이 가능하게 한다
+ */
 void Client::tryConnect(void)
 {
     try
@@ -33,20 +37,27 @@ void Client::tryConnect(void)
             if (errno == EINPROGRESS)
                 continue;
             else {
-                perror(strerror(errno));
+                DebugLog::AddLog("connect() failed: %s", strerror(errno));
                 throw std::runtime_error("connect() failed.");
             }
         }
+        // 연결상태 변경
         changeState();
+        // 송,수신 멀티 쓰레드 호출
         run();
     }
     catch(const std::runtime_error& e)
     {
         std::cerr << e.what() << '\n';
+        // 소켓 닫음
         closeFD();
     }
 }
 
+/*
+ * 서버 연결 종료 함수
+ * 상태를 먼저 변경함으로써 예외 발생 없이 안전하게 쓰레드 루프를 벗어나게 한다
+ */
 void Client::closeConnect(void)
 {
     changeState();
@@ -101,6 +112,7 @@ void Client::recvLoop(void)
         }
         catch(const std::runtime_error& e)
         {
+            DebugLog::AddLog("recv() failed: %s", e.what());
             std::cerr << e.what() << '\n';
             changeState();
         }
@@ -122,6 +134,7 @@ void Client::sendLoop(void)
         }
         catch(const std::runtime_error& e)
         {
+            DebugLog::AddLog("send() failed: %s", e.what());
             std::cerr << e.what() << '\n';
             changeState();
         }
