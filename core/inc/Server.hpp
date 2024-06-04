@@ -7,7 +7,8 @@
 class Server : public Socket
 {
 private:
-    MyList<Socket> _clients;
+    int             _fd;
+    MyList<Socket>  _clients;
 
 public:
     Server();
@@ -16,5 +17,9 @@ public:
 public:
     void init(void);
     void run(void);
+
+private:
+    void accept(void);
+    
 };
 #endif

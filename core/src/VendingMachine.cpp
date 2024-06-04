@@ -154,6 +154,9 @@ std::string VendingMachine::getLabel(void) const noexcept
     return _label;
 }
 
+/*
+ * 번호에 맞는 진열대를 반환하는 함수
+ */
 Shelf& VendingMachine::getRack(int idx)
 {
     if (idx < 0 || idx > 5)
@@ -161,6 +164,9 @@ Shelf& VendingMachine::getRack(int idx)
     return _rack[idx];
 }
 
+/*
+ * 번호에 맞는 화폐 보관함을 반환하는 함수
+ */
 CashTray& VendingMachine::getCashBox(int idx)
 {
     if (idx < 0 || idx > 4)

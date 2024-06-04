@@ -3,7 +3,7 @@
 Shelf::Shelf(int id, const std::string &label, int price)
 : _id(id), _label(label), _price(price)
 {
-    // 기본 개수만큼 채워 넣는다
+    // 상품을 초기 개수만큼 채워 넣는다
     for (int i = 0; i < PRODUCT_AMOUNT; i++)
         _shelf.push(Beverage(_label, _price));
 }

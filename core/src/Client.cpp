@@ -112,7 +112,7 @@ void Client::recvLoop(void)
         }
         catch(const std::runtime_error& e)
         {
-            DebugLog::AddLog("recv() failed: %s", e.what());
+            DebugLog::AddLog("%s", e.what());
             std::cerr << e.what() << '\n';
             changeState();
         }
@@ -134,7 +134,7 @@ void Client::sendLoop(void)
         }
         catch(const std::runtime_error& e)
         {
-            DebugLog::AddLog("send() failed: %s", e.what());
+            DebugLog::AddLog("%s", e.what());
             std::cerr << e.what() << '\n';
             changeState();
         }

@@ -54,7 +54,6 @@ int Socket::sendMsg(void)
     printf("send: %s\n", buf.c_str());
     errno = 0;
     ssize_t len = send(getFD(), buf.c_str(), buf.size(), 0);
-    // perror(strerror(errno));
     if (len == -1 && (errno != EAGAIN && errno != EWOULDBLOCK)) // 재시도할 상황이 아닌 경우 에러 발생
         throw std::runtime_error("fd " + std::to_string(_fd) + ": send() failed : " + std::strerror(errno));
     if (static_cast<std::size_t>(len) < buf.size()) // 일부분만 전송됐을 경우
