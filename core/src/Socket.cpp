@@ -2,6 +2,17 @@
 
 Socket::Socket() : _fd(-1) {}
 
+Socket::Socket(int fd) : _fd(fd) {}
+
+Socket::Socket(const Socket &rhs)
+{
+    this->_fd = rhs._fd;
+    this->_id = rhs._id;
+    this->_addr = rhs._addr;
+    this->readBuf = rhs.readBuf;
+    this->writeBuf = rhs.writeBuf;
+}
+
 Socket::~Socket()
 {
     if (_fd != -1)
@@ -111,4 +122,31 @@ std::string Socket::getFromWrite(void)
 std::string Socket::getFromRead(void)
 {
     return readBuf.flush();
+}
+
+bool Socket::operator>(const Socket &rhs) const
+{
+    return this->_fd > rhs._fd;
+}
+
+bool Socket::operator<(const Socket &rhs) const
+{
+    return this->_fd < rhs._fd;
+}
+
+bool Socket::operator==(const Socket &rhs) const
+{
+    return this->_fd == rhs._fd;
+}
+
+Socket &Socket::operator=(const Socket &rhs)
+{
+    if (this == &rhs)
+        return *this;
+    this->_fd = rhs._fd;
+    this->_id = rhs._id;
+    this->_addr = rhs._addr;
+    this->readBuf = rhs.readBuf;
+    this->writeBuf = rhs.writeBuf;
+    return *this;
 }

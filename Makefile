@@ -32,8 +32,8 @@ SRCS_DIR = $(CORE)src/
 INCS_DIR = $(CORE)inc/
 
 LIBS = lib/
-LIBS_INCS_DIR = $(LIBS)inc/
-LIBS_SRCS_DIR = $(LIBS)src/
+LIBS_INCS_DIR := $(LIBS)inc/
+LIBS_SRCS_DIR := $(LIBS)src/
 
 OBJS_DIR = obj/
 
@@ -82,10 +82,10 @@ all: $(EXE) $(SERVER)
 	@echo Build complete for $(ECHO_MESSAGE)
 
 $(EXE): $(C_OBJS)
-	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
+	$(CXX) -o $@ $^ $(CXXFLAGS) -L$(LIBS)
 
 $(SERVER): $(S_OBJS)
-	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
+	$(CXX) -o $@ $^ $(CXXFLAGS) -L$(LIBS)
 
 $(OBJS_DIR)%.o:$(SRCS_DIR)%.cpp
 	@test -d $(OBJS_DIR) || mkdir -p $(OBJS_DIR)

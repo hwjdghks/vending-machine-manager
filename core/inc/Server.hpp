@@ -19,7 +19,14 @@ public:
     void run(void);
 
 private:
-    void accept(void);
-    
+    void acceptClient(void);
+    void addClient(int fd);
+    void getClient(int fd);
+    void delClient(int fd);
+
+private:
+    void acceptLoop(void);
+    void recvLoop(void);
+    void sendLoop(void);
 };
 #endif

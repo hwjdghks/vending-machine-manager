@@ -21,6 +21,9 @@ public:
     std::string flush(void) noexcept;
     void rollback(std::string str, std::size_t pos) noexcept;
     bool empty(void) const noexcept;
+
+public:
+    Buffer &operator=(const Buffer &rhs);
 };
 
 #endif

@@ -75,7 +75,6 @@ void MyList<T>::pop_back()
         delete del;
         _size--;
     }
-    printf("size: %d\n", _size);
 }
 
 template <typename T>
@@ -107,7 +106,7 @@ T MyList<T>::back(void)
 {
     if (_tail == nullptr)
         throw std::logic_error("back() 데이터 없음.");
-    return _tail->data;
+    return _tail->_data;
 }
 
 template <typename T>

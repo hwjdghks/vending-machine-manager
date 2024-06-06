@@ -30,6 +30,8 @@ protected:
 
 protected:
     Socket();
+    Socket(int fd);
+    Socket(const Socket &rhs);
     virtual ~Socket();
 
 protected:
@@ -49,5 +51,11 @@ public:
     void addToRead(const char *str);
     std::string getFromWrite(void);
     std::string getFromRead(void);
+
+public:
+    bool operator>(const Socket &rhs) const;
+    bool operator<(const Socket &rhs) const;
+    bool operator==(const Socket &rhs) const;
+    Socket &operator=(const Socket &rhs);
 };
 #endif

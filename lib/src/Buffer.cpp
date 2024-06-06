@@ -40,3 +40,11 @@ bool Buffer::empty(void) const noexcept
 {
     return _buf.empty();
 }
+
+Buffer &Buffer::operator=(const Buffer &rhs)
+{
+    if (this == &rhs)
+        return *this;
+    this->_buf = rhs._buf;
+    return *this;
+}
