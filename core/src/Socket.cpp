@@ -40,13 +40,12 @@ void Socket::init(void)
 int Socket::recvMsg(void)
 {
     char buf[BUFSIZE];
-
     std::memset(buf, 0, BUFSIZE);
     errno = 0;
     ssize_t len = recv(getFD(), buf, BUFSIZE - 1, 0);
     // perror(strerror(errno));
     if (len == -1 && (errno != EAGAIN && errno != EWOULDBLOCK)) // 재시도할 상황이 아닌 경우 에러 발생
-        throw std::runtime_error("fd " + std::to_string(_fd) + ": recv() failed : " + std::strerror(errno));
+        throw std::runtime_error("fd " + std::to_string(_fd) + ": recv() failed : " + std::strerror(errno) + std::to_string(errno));
     if (len > 0) {
         printf("recv: %s\n", buf);
         readBuf.fill(buf);

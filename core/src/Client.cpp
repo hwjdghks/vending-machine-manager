@@ -32,6 +32,7 @@ void Client::tryConnect(void)
     try
     {
         init();
+        DebugLog::AddLog("try connect");
         errno = 0;
         while (connect(_fd, reinterpret_cast<sockaddr *>(&_addr), sizeof(_addr)) == -1) {
             if (errno == EINPROGRESS)
@@ -109,6 +110,8 @@ void Client::recvLoop(void)
         try
         {
             recvMsg();
+            if (!readBuf.empty())
+                DebugLog::AddLog("%s", getFromRead().c_str());
         }
         catch(const std::runtime_error& e)
         {
@@ -118,6 +121,7 @@ void Client::recvLoop(void)
         }
         std::this_thread::yield();
     }
+    DebugLog::AddLog("send thread off");
 }
 
 /*
@@ -140,4 +144,5 @@ void Client::sendLoop(void)
         }
         std::this_thread::yield();
     }
+    DebugLog::AddLog("send thread off");
 }

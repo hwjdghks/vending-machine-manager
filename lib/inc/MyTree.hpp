@@ -147,7 +147,7 @@ MyTreeNode<T>* MyTree<T>::deleteNode(MyTreeNode<T> *node, T data)
 template<typename T>
 MyTreeNode<T> *MyTree<T>::findNode(int id)
 {
-    return findeNode(_root, T(id));
+    return findNode(_root, T(id));
 }
 
 template<typename T>

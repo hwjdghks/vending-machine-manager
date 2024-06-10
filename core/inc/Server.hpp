@@ -1,14 +1,15 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#include "MyList.hpp"
+#include "MyTree.hpp"
 #include "Socket.hpp"
 
 class Server : public Socket
 {
 private:
-    int             _fd;
-    MyList<Socket>  _clients;
+    MyTree<Socket>  _clients;
+    std::mutex      _mutex;
+    std::mutex      _loop;
 
 public:
     Server();
@@ -19,9 +20,9 @@ public:
     void run(void);
 
 private:
-    void acceptClient(void);
+    int acceptClient(void);
     void addClient(int fd);
-    void getClient(int fd);
+    Socket &getClient(int fd);
     void delClient(int fd);
 
 private:

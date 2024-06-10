@@ -30,17 +30,19 @@ protected:
 
 protected:
     Socket();
+
+public:
     Socket(int fd);
     Socket(const Socket &rhs);
     virtual ~Socket();
 
-protected:
     virtual void init(void);
     int recvMsg(void);
     int sendMsg(void);
 
-protected:
     int getFD(void);
+
+protected:
     void setFD(int fd);
     void closeFD(void);
 

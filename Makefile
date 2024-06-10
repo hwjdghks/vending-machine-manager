@@ -18,7 +18,7 @@ EXE = demo_app
 SERVER = server
 
 CLIENT_SRCS = main.cpp
-SERVER_SRCS = test.cpp
+SERVER_SRCS = test.cpp Server.cpp
 SRCS = DebugLog.cpp Client.cpp Socket.cpp Page.cpp Shelf.cpp CashTray.cpp VendingMachine.cpp Program.cpp
 IMGUI_SRCS = imgui.cpp imgui_demo.cpp imgui_draw.cpp imgui_tables.cpp imgui_widgets.cpp
 BACKENDS_SRCS = imgui_impl_glfw.cpp imgui_impl_opengl3.cpp
@@ -46,7 +46,7 @@ C_OBJS = $(addprefix $(OBJS_DIR), $(CLIENT_SRCS:.cpp=.o))
 C_OBJS += $(OBJS)
 
 S_OBJS = $(addprefix $(OBJS_DIR), $(SERVER_SRCS:.cpp=.o))
-# S_OBJS += $(OBJS)
+S_OBJS += $(OBJS)
 
 UNAME_S := $(shell uname -s)
 LINUX_GL_LIBS = -lGL

@@ -13,7 +13,7 @@ private:
 public:
     Iterator(MyTreeNode<T> *root);
     bool hasNext(void) const;
-    T next(void);
+    T &next(void);
 
 private:
     void pushAllLeftNode(MyTreeNode<T> *node);
@@ -33,7 +33,7 @@ bool MyTree<T>::Iterator::hasNext(void) const
 }
 
 template<typename T>
-T MyTree<T>::Iterator::next(void)
+T &MyTree<T>::Iterator::next(void)
 {
     MyTreeNode<T> *node = _stack.top();
     _stack.pop();
