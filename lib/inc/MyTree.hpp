@@ -219,9 +219,9 @@ MyTreeNode<T> *MyTree<T>::findNode(MyTreeNode<T> *node, T data)
     if (node == nullptr || node->_data == data)
         return node;
     if (data < node->_data)
-        findNode(node->_left, data);
+        return findNode(node->_left, data);
     else
-        findNode(node->_right, data);
+        return findNode(node->_right, data);
 }
 
 #include "MyTreeIterator.hpp"
