@@ -8,9 +8,9 @@ class Server : public Socket
 {
 private:
     MyTree<Socket>  _clients;
-    std::mutex      _mutex;
+    std::mutex      _s_mutex;
     std::mutex      _loop;
-
+    int             _mode;
 public:
     Server();
     ~Server();
@@ -24,7 +24,7 @@ private:
     int acceptClient(void);
     void addClient(int fd);
     Socket &getClient(int fd);
-    void delClient(int fd);
+    void delClient(Socket &client);
 
 private:
     void recvLoop(void);

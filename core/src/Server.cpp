@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-Server::Server() {}
+Server::Server() : _mode(0) {}
 
 Server::~Server() {}
 
@@ -48,36 +48,58 @@ int Server::acceptClient(void)
     /* 클라이언트 목록에 추가 */
     /* 연결 성공 메세지 버퍼에 추가(welcome) */
     addClient(client_fd);
+    try
+    {
+        Socket &client = getClient(client_fd);
+        client.addToWrite("WELCOME " + std::to_string(client_fd));
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << "acceptClient(): "<< e.what() << '\n';
+        throw;
+    }
     return client_fd;
 }
 
 void Server::addClient(int fd)
 {
-    std::lock_guard<std::mutex> lock(_mutex);
+    std::lock_guard<std::mutex> lock(_s_mutex);
     _clients.insertNode(Socket(fd));
 }
 
 Socket &Server::getClient(int fd)
 {
-    std::lock_guard<std::mutex> lock(_mutex);
-    MyTreeNode<Socket> *node = _clients.findNode(fd);
-    if (!node)
-        std::runtime_error("Client not find");
-    return node->_data;
-}
-
-void Server::delClient(int fd)
-{
-    std::lock_guard<std::mutex> lock(_mutex);
     try
     {
-        Socket& client = getClient(fd);
+        std::lock_guard<std::mutex> lock(_s_mutex);
+        MyTreeNode<Socket> *node = _clients.findNode(fd);
+        if (node == nullptr)
+            std::runtime_error("Client not find");
+        return node->_data;
+    }
+    catch(const std::system_error& e)
+    {
+        std::cerr << "getClient(): " << e.what() << '\n';
+        throw;
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << "getClient(): " << e.what() << '\n';
+        throw;
+    }
+}
+
+void Server::delClient(Socket &client)
+{
+    std::lock_guard<std::mutex> lock(_s_mutex);
+    try
+    {
         client.closeFD();
-        _clients.deleteNode(Socket(fd));
+        _clients.deleteNode(client);
     }
     catch (const std::exception& e)
     {
-        std::cerr << "Error closing fd " << fd << ": " << e.what() << '\n';
+        std::cerr << "Error closing fd " << client.getFD() << ": " << e.what() << '\n';
     }
 }
 
@@ -85,20 +107,27 @@ void Server::acceptLoop(void)
 {
     std::cout << "accpet threaad on\n";
     while (true) {
-        try
+        // lock 해제 후 쓰레드 양보를 위해 임의의 블록 스코프 생성
         {
             std::lock_guard<std::mutex> lock(_loop);
-            int fd = acceptClient();
-            if (fd != -1) {
-                std::cout << "accept success fd: " << fd << '\n';
-                Socket &client = getClient(fd);
-                client.addToWrite(std::string("WELCOME " + std::to_string(fd)));
+            if (_mode == 0) {
+                try
+                {
+                    int fd = acceptClient();
+                    if (fd != -1) {
+                        std::cout << "accept success fd: " << fd << '\n';
+                    }
+                }
+                catch (const std::system_error &e)
+                {
+                    std::cerr << "system_error: accept Loop(): " << e.what() << '\n';
+                }
+                catch (const std::exception &e)
+                {
+                    std::cerr << "accept Loop(): " << e.what() << '\n';
+                }
+                _mode = 1;
             }
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-            std::cerr << "accept wrong" << '\n';
         }
         std::this_thread::yield();
     }
@@ -107,27 +136,25 @@ void Server::acceptLoop(void)
 void Server::recvLoop(void)
 {
     std::cout << "recv threaad on\n";
-    Socket *save = nullptr;
-
     while (true) {
-        try
+        // lock 해제 후 쓰레드 양보를 위해 임의의 블록 스코프 생성
         {
             std::lock_guard<std::mutex> lock(_loop);
-            for (MyTree<Socket>::Iterator it = _clients.begin(); it.hasNext(); ) {
-                Socket &now = it.next();
-                save = &now;
-                std::cout << "Attempting to recv on fd: " << now.getFD() << std::endl;
-                now.recvMsg();
-                // parse(now.getFromRead());
-            }
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-            if (save) {
-                std::cerr << save->getFD() << " recv wrong" << '\n';
-                save->closeFD();
-                delClient(save->getFD());
+            if (_mode == 1) {
+                for (MyTree<Socket>::Iterator it = _clients.begin(); it.hasNext();) {
+                    Socket &now = it.next();
+                    try
+                    {
+                        now.recvMsg();
+                        std::cout << now.getFromRead();
+                    }
+                    catch (const std::exception &e)
+                    {
+                        std::cerr << "recv Loop(): " << e.what() << '\n';
+                        delClient(now);
+                    }
+                }
+                _mode = 2;
             }
         }
         std::this_thread::yield();
@@ -140,22 +167,23 @@ void Server::sendLoop(void)
     Socket *save = nullptr;
 
     while (true) {
-        try
+        // lock 해제 후 쓰레드 양보를 위해 임의의 블록 스코프 생성
         {
             std::lock_guard<std::mutex> lock(_loop);
-            for (MyTree<Socket>::Iterator it = _clients.begin(); it.hasNext();) {
-                Socket &now = it.next();
-                save = &now;
-                std::cout << "Attempting to send on fd: " << now.getFD() << std::endl;
-                now.sendMsg();
-            }
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-            if (save) {
-                std::cerr << save->getFD() << " send wrong\n";
-                delClient(save->getFD());
+            if (_mode == 2) {
+                for (MyTree<Socket>::Iterator it = _clients.begin(); it.hasNext();) {
+                    Socket &now = it.next();
+                    try
+                    {
+                        now.sendMsg();
+                    }
+                    catch (const std::exception &e)
+                    {
+                        std::cerr << "send Loop(): " << e.what() << '\n';
+                        delClient(now);
+                    }
+                }
+                _mode = 0;
             }
         }
         std::this_thread::yield();

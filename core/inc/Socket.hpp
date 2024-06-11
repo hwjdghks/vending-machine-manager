@@ -26,7 +26,7 @@ protected:
     struct sockaddr_in _addr;
     Buffer readBuf;
     Buffer writeBuf;
-    std::mutex _mutex;
+    std::mutex _so_mutex;
 
 protected:
     Socket();

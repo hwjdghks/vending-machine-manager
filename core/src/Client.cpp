@@ -84,7 +84,7 @@ void Client::run(void)
  */
 bool Client::isConnected(void)
 {
-    std::lock_guard<std::mutex> lock(_mutex);
+    std::lock_guard<std::mutex> lock(_so_mutex);
     return _isConnect;
 }
 
@@ -93,7 +93,7 @@ bool Client::isConnected(void)
  */
 void Client::changeState(void)
 {
-    std::lock_guard<std::mutex> lock(_mutex);
+    std::lock_guard<std::mutex> lock(_so_mutex);
     if (_isConnect == false)
         _isConnect = true;
     else

@@ -13,10 +13,7 @@ Socket::Socket(const Socket &rhs)
     this->writeBuf = rhs.writeBuf;
 }
 
-Socket::~Socket()
-{
-    closeFD();
-}
+Socket::~Socket() {}
 
 /*
  * 소켓 공통 초기화
@@ -40,14 +37,18 @@ int Socket::recvMsg(void)
 {
     char buf[BUFSIZE];
     std::memset(buf, 0, BUFSIZE);
+
+    int target = getFD();
+    if (target == -1)
+        return -1;
+
     errno = 0;
-    ssize_t len = recv(getFD(), buf, BUFSIZE - 1, 0);
+    ssize_t len = recv(target, buf, BUFSIZE - 1, 0);
     if (len == -1 && (errno != EAGAIN && errno != EWOULDBLOCK)) // 재시도할 상황이 아닌 경우 에러 발생
-        throw std::runtime_error("fd " + std::to_string(_fd) + ": recv() failed : " + std::strerror(errno) + " errno:" + std::to_string(errno));
+        throw std::runtime_error("fd " + std::to_string(target) + ": recv() failed : " + std::strerror(errno) + " errno:" + std::to_string(errno));
     if (len == 0)
-        throw std::runtime_error("fd " + std::to_string(_fd) + ": connection closed by peer");
+        throw std::runtime_error("fd " + std::to_string(target) + ": connection closed by peer");
     if (len > 0) {
-        printf("recv: %s\n", buf);
         readBuf.fill(buf);
     }
 }
@@ -60,26 +61,28 @@ int Socket::sendMsg(void)
     if (writeBuf.empty())
         return 1;
 
+    int target = getFD();
+    if (target == -1)
+        return -1;
+
     std::string buf = writeBuf.flush();
-    printf("%d send: %s\n", getFD(), buf.c_str());
     errno = 0;
-    ssize_t len = send(getFD(), buf.c_str(), buf.size(), 0);
+    ssize_t len = send(target, buf.c_str(), buf.size(), 0);
     if (len == -1 && (errno != EAGAIN && errno != EWOULDBLOCK)) // 재시도할 상황이 아닌 경우 에러 발생
-        throw std::runtime_error("fd " + std::to_string(_fd) + ": send() failed : " + std::strerror(errno));
+        throw std::runtime_error("fd " + std::to_string(target) + ": send() failed : " + std::strerror(errno) + " errno:" + std::to_string(errno));
     if (static_cast<std::size_t>(len) < buf.size()) // 일부분만 전송됐을 경우
         writeBuf.rollback(buf, len);
 }
 
 int Socket::getFD(void)
 {
-    std::lock_guard<std::mutex> lock(_mutex);
-    std::cout << "getFD called, returning _fd: " << _fd << std::endl;
+    std::lock_guard<std::mutex> lock(_so_mutex);
     return _fd;
 }
 
 void Socket::setFD(int fd)
 {
-    std::lock_guard<std::mutex> lock(_mutex);
+    std::lock_guard<std::mutex> lock(_so_mutex);
     _fd = fd;
 }
 
@@ -88,7 +91,7 @@ void Socket::setFD(int fd)
  */
 void Socket::closeFD(void)
 {
-    std::lock_guard<std::mutex> lock(_mutex);
+    std::lock_guard<std::mutex> lock(_so_mutex);
     if (_fd != -1) {
         std::cout << "Closing _fd: " << _fd << std::endl;
         close(_fd);

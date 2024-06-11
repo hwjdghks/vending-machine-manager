@@ -8,7 +8,7 @@ class Buffer
 {
 private:
     std::string _buf;
-    std::mutex _mutex;
+    std::mutex _b_mutex;
 
 public:
     Buffer();

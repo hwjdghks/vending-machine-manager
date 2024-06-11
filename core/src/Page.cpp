@@ -522,7 +522,7 @@ void Page::__addBuyButton(Client &client, VendingMachine &machine, Shelf &rack, 
         DebugLog::AddLog("%s 구매 버튼 클릭", rack.getLabelCstring());
         try
         {
-            client.addToWrite(std::string(rack.getLabel() + " 구매 버튼 클릭"));
+            client.addToWrite(std::string(rack.getLabel() + " 구매 버튼 클릭" + '\n'));
             machine.sell(rack.getID()); // 물품 판매. 재고 없을 시 에러 발생
         }
         catch (const std::logic_error& e)
