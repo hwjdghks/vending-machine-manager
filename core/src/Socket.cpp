@@ -15,8 +15,7 @@ Socket::Socket(const Socket &rhs)
 
 Socket::~Socket()
 {
-    if (_fd != -1)
-        close(_fd);
+    closeFD();
 }
 
 /*
@@ -43,9 +42,10 @@ int Socket::recvMsg(void)
     std::memset(buf, 0, BUFSIZE);
     errno = 0;
     ssize_t len = recv(getFD(), buf, BUFSIZE - 1, 0);
-    // perror(strerror(errno));
     if (len == -1 && (errno != EAGAIN && errno != EWOULDBLOCK)) // 재시도할 상황이 아닌 경우 에러 발생
-        throw std::runtime_error("fd " + std::to_string(_fd) + ": recv() failed : " + std::strerror(errno) + std::to_string(errno));
+        throw std::runtime_error("fd " + std::to_string(_fd) + ": recv() failed : " + std::strerror(errno) + " errno:" + std::to_string(errno));
+    if (len == 0)
+        throw std::runtime_error("fd " + std::to_string(_fd) + ": connection closed by peer");
     if (len > 0) {
         printf("recv: %s\n", buf);
         readBuf.fill(buf);
@@ -61,7 +61,7 @@ int Socket::sendMsg(void)
         return 1;
 
     std::string buf = writeBuf.flush();
-    printf("send: %s\n", buf.c_str());
+    printf("%d send: %s\n", getFD(), buf.c_str());
     errno = 0;
     ssize_t len = send(getFD(), buf.c_str(), buf.size(), 0);
     if (len == -1 && (errno != EAGAIN && errno != EWOULDBLOCK)) // 재시도할 상황이 아닌 경우 에러 발생
@@ -73,6 +73,7 @@ int Socket::sendMsg(void)
 int Socket::getFD(void)
 {
     std::lock_guard<std::mutex> lock(_mutex);
+    std::cout << "getFD called, returning _fd: " << _fd << std::endl;
     return _fd;
 }
 
@@ -88,9 +89,11 @@ void Socket::setFD(int fd)
 void Socket::closeFD(void)
 {
     std::lock_guard<std::mutex> lock(_mutex);
-    if (_fd != -1)
+    if (_fd != -1) {
+        std::cout << "Closing _fd: " << _fd << std::endl;
         close(_fd);
-    _fd = -1;
+        _fd = -1;
+    }
 }
 
 void Socket::addToWrite(const std::string &str)

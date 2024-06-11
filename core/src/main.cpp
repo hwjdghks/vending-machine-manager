@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <thread>
+#include <signal.h>
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -86,6 +87,7 @@ void *drawGui(void *arg)
 }
 
 int main() {
+    signal(SIGPIPE, SIG_IGN);
     Program *program = new Program();
 
     std::thread windows(drawGui, program);

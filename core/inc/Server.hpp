@@ -18,6 +18,7 @@ public:
 public:
     void init(void);
     void run(void);
+    void acceptLoop(void);
 
 private:
     int acceptClient(void);
@@ -26,7 +27,6 @@ private:
     void delClient(int fd);
 
 private:
-    void acceptLoop(void);
     void recvLoop(void);
     void sendLoop(void);
 };

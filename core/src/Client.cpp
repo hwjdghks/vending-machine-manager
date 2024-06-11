@@ -34,7 +34,7 @@ void Client::tryConnect(void)
         init();
         DebugLog::AddLog("try connect");
         errno = 0;
-        while (connect(_fd, reinterpret_cast<sockaddr *>(&_addr), sizeof(_addr)) == -1) {
+        while (connect(getFD(), reinterpret_cast<sockaddr *>(&_addr), sizeof(_addr)) == -1) {
             if (errno == EINPROGRESS)
                 continue;
             else {
@@ -42,6 +42,7 @@ void Client::tryConnect(void)
                 throw std::runtime_error("connect() failed.");
             }
         }
+        DebugLog::AddLog("fd %d: connect success", getFD());
         // 연결상태 변경
         changeState();
         // 송,수신 멀티 쓰레드 호출
@@ -117,7 +118,7 @@ void Client::recvLoop(void)
         {
             DebugLog::AddLog("%s", e.what());
             std::cerr << e.what() << '\n';
-            changeState();
+            closeConnect();
         }
         std::this_thread::yield();
     }
@@ -140,7 +141,7 @@ void Client::sendLoop(void)
         {
             DebugLog::AddLog("%s", e.what());
             std::cerr << e.what() << '\n';
-            changeState();
+            closeConnect();
         }
         std::this_thread::yield();
     }

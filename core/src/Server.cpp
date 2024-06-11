@@ -69,7 +69,16 @@ Socket &Server::getClient(int fd)
 void Server::delClient(int fd)
 {
     std::lock_guard<std::mutex> lock(_mutex);
-    _clients.deleteNode(Socket(fd));
+    try
+    {
+        Socket& client = getClient(fd);
+        client.closeFD();
+        _clients.deleteNode(Socket(fd));
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "Error closing fd " << fd << ": " << e.what() << '\n';
+    }
 }
 
 void Server::acceptLoop(void)
@@ -81,6 +90,7 @@ void Server::acceptLoop(void)
             std::lock_guard<std::mutex> lock(_loop);
             int fd = acceptClient();
             if (fd != -1) {
+                std::cout << "accept success fd: " << fd << '\n';
                 Socket &client = getClient(fd);
                 client.addToWrite(std::string("WELCOME " + std::to_string(fd)));
             }
@@ -88,6 +98,7 @@ void Server::acceptLoop(void)
         catch(const std::exception& e)
         {
             std::cerr << e.what() << '\n';
+            std::cerr << "accept wrong" << '\n';
         }
         std::this_thread::yield();
     }
@@ -96,7 +107,7 @@ void Server::acceptLoop(void)
 void Server::recvLoop(void)
 {
     std::cout << "recv threaad on\n";
-    Socket *save;
+    Socket *save = nullptr;
 
     while (true) {
         try
@@ -105,6 +116,7 @@ void Server::recvLoop(void)
             for (MyTree<Socket>::Iterator it = _clients.begin(); it.hasNext(); ) {
                 Socket &now = it.next();
                 save = &now;
+                std::cout << "Attempting to recv on fd: " << now.getFD() << std::endl;
                 now.recvMsg();
                 // parse(now.getFromRead());
             }
@@ -112,17 +124,21 @@ void Server::recvLoop(void)
         catch(const std::exception& e)
         {
             std::cerr << e.what() << '\n';
-            delClient(save->getFD());
+            if (save) {
+                std::cerr << save->getFD() << " recv wrong" << '\n';
+                save->closeFD();
+                delClient(save->getFD());
+            }
         }
         std::this_thread::yield();
-        sleep(1);
     }
 }
 
 void Server::sendLoop(void)
 {
     std::cout << "send threaad on\n";
-    Socket *save;
+    Socket *save = nullptr;
+
     while (true) {
         try
         {
@@ -130,13 +146,17 @@ void Server::sendLoop(void)
             for (MyTree<Socket>::Iterator it = _clients.begin(); it.hasNext();) {
                 Socket &now = it.next();
                 save = &now;
+                std::cout << "Attempting to send on fd: " << now.getFD() << std::endl;
                 now.sendMsg();
             }
         }
         catch(const std::exception& e)
         {
             std::cerr << e.what() << '\n';
-            delClient(save->getFD());
+            if (save) {
+                std::cerr << save->getFD() << " send wrong\n";
+                delClient(save->getFD());
+            }
         }
         std::this_thread::yield();
     }

@@ -40,9 +40,8 @@ public:
     int recvMsg(void);
     int sendMsg(void);
 
+public:
     int getFD(void);
-
-protected:
     void setFD(int fd);
     void closeFD(void);
 
