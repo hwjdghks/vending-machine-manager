@@ -11,6 +11,7 @@ private:
     std::mutex      _s_mutex;
     std::mutex      _loop;
     int             _mode;
+
 public:
     Server();
     ~Server();

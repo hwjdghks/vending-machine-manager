@@ -152,6 +152,7 @@ void Server::recvLoop(void)
                     {
                         std::cerr << "recv Loop(): " << e.what() << '\n';
                         delClient(now);
+                        break ; // 데이터가 변경되면 반복자가 무효화되므로 반복문 탈출
                     }
                 }
                 _mode = 2;
@@ -164,8 +165,6 @@ void Server::recvLoop(void)
 void Server::sendLoop(void)
 {
     std::cout << "send threaad on\n";
-    Socket *save = nullptr;
-
     while (true) {
         // lock 해제 후 쓰레드 양보를 위해 임의의 블록 스코프 생성
         {
@@ -181,6 +180,7 @@ void Server::sendLoop(void)
                     {
                         std::cerr << "send Loop(): " << e.what() << '\n';
                         delClient(now);
+                        break ; // 데이터가 변경되면 반복자가 무효화되므로 반복문 탈출
                     }
                 }
                 _mode = 0;
