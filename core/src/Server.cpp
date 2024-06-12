@@ -69,24 +69,12 @@ void Server::addClient(int fd)
 
 Socket &Server::getClient(int fd)
 {
-    try
-    {
-        std::lock_guard<std::mutex> lock(_s_mutex);
-        MyTreeNode<Socket> *node = _clients.findNode(fd);
-        if (node == nullptr)
-            std::runtime_error("Client not find");
-        return node->_data;
-    }
-    catch(const std::system_error& e)
-    {
-        std::cerr << "getClient(): " << e.what() << '\n';
-        throw;
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << "getClient(): " << e.what() << '\n';
-        throw;
-    }
+
+    std::lock_guard<std::mutex> lock(_s_mutex);
+    MyTreeNode<Socket> *node = _clients.findNode(fd);
+    if (node == nullptr)
+        std::runtime_error("Client not find");
+    return node->_data;
 }
 
 void Server::delClient(Socket &client)
@@ -94,8 +82,9 @@ void Server::delClient(Socket &client)
     std::lock_guard<std::mutex> lock(_s_mutex);
     try
     {
-        client.closeFD();
+        int fd = client.getFD();
         _clients.deleteNode(client);
+        close(fd);
     }
     catch (const std::exception& e)
     {
@@ -116,16 +105,16 @@ void Server::acceptLoop(void)
                     int fd = acceptClient();
                     if (fd != -1) {
                         std::cout << "accept success fd: " << fd << '\n';
+                        Socket &client = getClient(fd);
+                        // 연결됐음을 알리는 WELCOME MESSAGE 전송
+                        client.addToWrite(std::string("WELCOME " + std::to_string(fd)));
                     }
-                }
-                catch (const std::system_error &e)
-                {
-                    std::cerr << "system_error: accept Loop(): " << e.what() << '\n';
                 }
                 catch (const std::exception &e)
                 {
                     std::cerr << "accept Loop(): " << e.what() << '\n';
                 }
+                // 다른 쓰레드를 위해 모드 변경 후 쓰레드 양보 호출
                 _mode = 1;
             }
         }
@@ -155,6 +144,7 @@ void Server::recvLoop(void)
                         break ; // 데이터가 변경되면 반복자가 무효화되므로 반복문 탈출
                     }
                 }
+                // 다른 쓰레드를 위해 모드 변경 후 쓰레드 양보 호출
                 _mode = 2;
             }
         }
@@ -183,6 +173,7 @@ void Server::sendLoop(void)
                         break ; // 데이터가 변경되면 반복자가 무효화되므로 반복문 탈출
                     }
                 }
+                // 다른 쓰레드를 위해 모드 변경 후 쓰레드 양보 호출
                 _mode = 0;
             }
         }
