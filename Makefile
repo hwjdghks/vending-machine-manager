@@ -11,11 +11,11 @@
 #   pacman -S --noconfirm --needed mingw-w64-x86_64-toolchain mingw-w64-x86_64-glfw
 #
 
-#CXX = g++
+CXX = g++
 #CXX = clang++
 
-EXE = demo_app
-SERVER = server
+CLIENT = vending_machine
+SERVER = manage_server
 
 CLIENT_SRCS = main_client.cpp
 SERVER_SRCS = main_server.cpp Server.cpp
@@ -78,10 +78,10 @@ endif
 ## BUILD RULES
 ##---------------------------------------------------------------------
 
-all: $(EXE) $(SERVER)
+all: $(CLIENT) $(SERVER)
 	@echo Build complete for $(ECHO_MESSAGE)
 
-$(EXE): $(C_OBJS)
+$(CLIENT): $(C_OBJS)
 	$(CXX) -o $@ $^ $(CXXFLAGS) -L$(LIBS)
 
 $(SERVER): $(S_OBJS)
@@ -104,7 +104,7 @@ $(OBJS_DIR)%.o:$(LIBS_SRCS_DIR)%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 clean:
-	rm -rf $(EXE) $(SERVER) $(OBJS_DIR) *.ini
+	rm -rf $(CLIENT) $(SERVER) $(OBJS_DIR) *.ini
 
 re:
 	make clean
