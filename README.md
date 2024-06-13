@@ -1,6 +1,6 @@
 # Vending Machine Manager
 
-A GUI-based vending machine management program using OpenGL3 and GLFW, designed to run on Ubuntu 22.04.
+A GUI-based vending machine program using OpenGL3 and GLFW.
 
 ## Dependencies
 - **Ubuntu 22.04**
