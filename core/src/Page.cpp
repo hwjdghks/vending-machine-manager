@@ -443,6 +443,7 @@ void Page::_addChangeProductInfo(Program &program, const ImVec2 &start)
                     // 변경사항 적용 시도
                     rack.setLabel(labelBuf);
                     rack.setPrice(priceBuf);
+                    failedFlag = false;
                 }
                 catch(const std::logic_error& e)
                 {
@@ -527,7 +528,6 @@ void Page::__addBuyButton(Client &client, VendingMachine &machine, Shelf &rack, 
         }
         catch (const std::logic_error& e)
         {
-            printf("에러 발생! %s\n", e.what());
             DebugLog::AddLog("%s", e.what());
         }
         DebugLog::AddLog("%s 남은 수량 : %ld", rack.getLabelCstring(), rack.getAmount());
