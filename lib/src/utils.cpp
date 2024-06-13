@@ -24,3 +24,33 @@ CMD parseFlow(const std::string &str)
             return static_cast<CMD>(i);
     return CMD::NOMATCH;
 }
+
+std::string getWord(std::string &str)
+{
+    std::istringstream stream(str);
+    std::string line;
+
+    // 단어 추출
+    stream >> line;
+    // 추출 후 남은 문자열 업데이트
+    // 선행 공백 제거 포함
+    std::getline(stream >> std::ws, str);
+    return line;
+}
+
+int getInt(std::string &str)
+{
+    return std::stoi(getWord(str));
+}
+
+int getPrefix(std::string &str)
+{
+    std::string prefix = getWord(str);
+    prefix = prefix.substr(1); // prefix 접두사 ':' 제거
+    return getInt(prefix);
+}
+
+CMD getCommand(std::string &str)
+{
+    return parseFlow(getWord(str));
+}

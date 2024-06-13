@@ -42,8 +42,8 @@ public:
 
 public: /* 소켓 프로그래밍 기본 함수 */
     virtual void init(void);
-    int recvMsg(void);
-    int sendMsg(void);
+    void recvMsg(void);
+    void sendMsg(void);
 
 public: /* FD Control */
     int getFD(void);

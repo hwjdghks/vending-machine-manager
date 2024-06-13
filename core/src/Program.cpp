@@ -68,3 +68,94 @@ std::string Program::getPassword(void) const noexcept
 {
     return _password;
 }
+
+void Program::parse(void)
+{
+    std::string buf = getClient().getFromRead();
+
+    if (buf.empty())
+        return ;
+    std::cout << "From Server: " << buf << '$' << '\n';
+    splitByNewLine(buf);
+    while (!_lines.empty()) {
+        std::string line = _lines.front();
+        _lines.pop();
+        parseEachLine(line);
+    }
+}
+
+void Program::splitByNewLine(const std::string &buf)
+{
+    std::istringstream stream(buf);
+    std::string line;
+
+    while (std::getline(stream, line))
+        _lines.push(line);
+}
+
+void Program::parseEachLine(std::string &line)
+{
+    DebugLog::AddLog("From Server: %s\n", line.c_str());
+    switch (getCommand(line))
+    {
+    case CMD::WELCOME: // 서버 연결 성공
+        parseWELCOME(line);
+        break;
+    case CMD::UPDATE: // 정보 업데이트
+        parseUPDATE(line);
+        break;
+    case CMD::PRINT: // 자판기 정보 전달
+        parsePRINT(line);
+        break;
+    default: // 올바르지 않은 명령어의 경우
+        std::cout << ">> 잘못된 명령어 입력" << '\n';
+        break;
+    }
+}
+
+void Program::parseWELCOME(std::string &line)
+{
+    VendingMachine &machine = getMachine();
+    int id = getInt(line);
+
+    /* Need Edit */
+    (void)id;
+
+    std::string msg = "SET ";
+    for (int i = 0; i < 6; i++) {
+        Shelf &rack = machine.getRack(i);
+        msg = concatenate(msg,
+                        rack.getLabel(), ' ',
+                        rack.getPrice(), ' ',
+                        rack.getAmount(), ' ',
+                        0, ' ');
+    }
+    msg = concatenate(msg, '\n');
+    getClient().addToWrite(msg);
+}
+
+void Program::parseUPDATE(std::string &line)
+{
+    int id = getInt(line);
+    Shelf &rack = _machine.getRack(id);
+
+    try
+    {
+        std::string type = getWord(line);
+        if (type == "LABEL") {
+            rack.setLabel(getWord(line));
+        }
+        else if (type == "PRICE") {
+            rack.setPrice(getInt(line));
+        }
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+}
+
+void Program::parsePRINT(std::string &line)
+{
+    /* Need Edit */
+}

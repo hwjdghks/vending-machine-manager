@@ -4,6 +4,7 @@
 #include "imgui.h"
 #include <type_traits> /* static_assert */
 #include <string>
+#include <sstream>
 
 #define BASIC_BUTTON_SIZE ImVec2(170, 60)
 
@@ -22,10 +23,12 @@ enum class ViewMode {
  */
 enum class CMD {
     WELCOME, // server --> client
-    BYE,    // server  --> client
+    BYE,    // server <--  client
     UPDATE, // server <--> client
     SELL,   // server <--  client
-    PRINT,  // server <--> client or server internal
+    PRINT,  // server  --> client or server internal
+    SET,    // server <--  client
+    ALERT,  // server <--  client
     _COUNT, // count of cmd list
     NOMATCH // error
 };
@@ -38,9 +41,36 @@ const std::string g_cmd_list[static_cast<int>(CMD::_COUNT)] = {
     "BYE",
     "UPDATE",
     "SELL",
-    "PRINT"
+    "PRINT",
+    "SET",
+    "ALERT"
 };
 
+template <typename T>
+std::string toString(const T& value)
+{
+    std::ostringstream oss;
+    oss << value;
+    return oss.str();
+}
+
+inline std::string concatenate()
+{
+    return "";
+}
+
+// Recursive variadic template function
+template <typename First, typename... Rest>
+inline std::string concatenate(const First& first, const Rest&... rest)
+{
+    return toString(first) + concatenate(rest...);
+}
+
 ImVec2 getVec2(const ImVec2 &ratio);
-CMD parseFlow(const char *str);
+CMD parseFlow(const std::string &str);
+std::string getWord(std::string &str);
+int getInt(std::string &str);
+int getPrefix(std::string &str);
+CMD getCommand(std::string &str);
+
 #endif

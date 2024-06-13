@@ -51,6 +51,7 @@ void Client::tryConnect(void)
     catch(const std::runtime_error& e)
     {
         std::cerr << e.what() << '\n';
+        DebugLog::AddLog("fd %d: connect failed", getFD());
         // 소켓 닫음
         closeFD();
     }
@@ -111,8 +112,6 @@ void Client::recvLoop(void)
         try
         {
             recvMsg();
-            if (!readBuf.empty())
-                DebugLog::AddLog("%s", getFromRead().c_str());
         }
         catch(const std::runtime_error& e)
         {

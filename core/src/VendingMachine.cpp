@@ -123,17 +123,21 @@ void VendingMachine::returnChange(void)
     _max1000won = 0;
 
     // 로그 출력
-    char buffer[100];
+    std::string buffer;
 
-    snprintf(buffer, sizeof(buffer), "%d, %d, %d, %d, %d",
-    currency_used[0], currency_used[1], currency_used[2],
-    currency_used[3], currency_used[4]);
-    DebugLog::AddLog("반환된 화폐 개수: %s", buffer);
+    buffer = concatenate(currency_used[0], ", ",
+                        currency_used[1], ", ",
+                        currency_used[2], ", ",
+                        currency_used[3], ", ",
+                        currency_used[4]);
+    DebugLog::AddLog("반환된 화폐 개수: %s", buffer.c_str());
 
-    snprintf(buffer, sizeof(buffer), "%d, %d, %d, %d, %d",
-    _cashBox[0].getAmount(), _cashBox[1].getAmount(), _cashBox[2].getAmount(),
-    _cashBox[3].getAmount(), _cashBox[4].getAmount());
-    DebugLog::AddLog("남은 화폐 개수  : %s", buffer);
+    buffer = concatenate(_cashBox[0].getAmount(), ", ",
+                        _cashBox[1].getAmount(), ", ",
+                        _cashBox[2].getAmount(), ", ",
+                        _cashBox[3].getAmount(), ", ",
+                        _cashBox[4].getAmount());
+    DebugLog::AddLog("남은 화폐 개수  : %s", buffer.c_str());
 }
 
 /*
@@ -194,4 +198,5 @@ void VendingMachine::setLabel(const std::string label)
     if (label == "")
         throw std::logic_error("허용되지 않는 라벨! Before:" + getLabel() + ", After:" + label);
     _label = label;
+    DebugLog::AddLog("%s 성공",  label);
 }

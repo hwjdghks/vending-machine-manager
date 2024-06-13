@@ -29,14 +29,14 @@ void Socket::init(void)
 /*
  * 메세지 수신
  */
-int Socket::recvMsg(void)
+void Socket::recvMsg(void)
 {
     char buf[BUFSIZE];
     std::memset(buf, 0, BUFSIZE);
 
     int target = getFD();
     if (target == -1)
-        return -1;
+        return ;
 
     errno = 0;
     ssize_t len = recv(target, buf, BUFSIZE - 1, 0);
@@ -52,14 +52,14 @@ int Socket::recvMsg(void)
 /*
  * 메세지 발송
  */
-int Socket::sendMsg(void)
+void Socket::sendMsg(void)
 {
     if (writeBuf.empty())
-        return 1;
+        return ;
 
     int target = getFD();
     if (target == -1)
-        return -1;
+        return ;
 
     std::string buf = writeBuf.flush();
     errno = 0;

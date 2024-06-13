@@ -144,7 +144,10 @@ void Page::_addPaymentPanel(Program &program, const ImVec2 &start)
             }
             catch (const std::logic_error &e)
             {
-                DebugLog::AddLog("%s", e.what());
+                DebugLog::AddLog("%s", e.what());\
+                // 서버로 알람 전송
+                Client &client = program.getClient();
+                client.addToWrite("ALERT BALANCE");
             }
         }
     }
@@ -365,6 +368,7 @@ void Page::_addChangePasswd(Program &program, const ImVec2 &start)
 void Page::_addChangeProductInfo(Program &program, const ImVec2 &start)
 {
     VendingMachine &machine = program.getMachine();
+    Client &client = program.getClient();
     // 버튼 클릭 여부
     static bool changeInfoFlag = false;
     // 변경 시도
@@ -441,8 +445,11 @@ void Page::_addChangeProductInfo(Program &program, const ImVec2 &start)
                 try
                 {
                     // 변경사항 적용 시도
+                    // 상품명 변경
                     rack.setLabel(labelBuf);
+                    // 가격 변경
                     rack.setPrice(priceBuf);
+                    // 플래그 변경
                     failedFlag = false;
                 }
                 catch(const std::logic_error& e)
@@ -453,6 +460,12 @@ void Page::_addChangeProductInfo(Program &program, const ImVec2 &start)
                     rack.setLabel(backupLabel);
                     rack.setPrice(backupPrice);
                 }
+                // 서버로 로그 전송
+                std::string msg;
+                msg = concatenate("UPDATE LABEL", ' ', labelBuf, '\n');
+                client.addToWrite(msg);
+                msg = concatenate("UPDATE PRICE", ' ', priceBuf, '\n');
+                client.addToWrite(msg);
             }
         }
         // 닫기 버튼
@@ -468,6 +481,10 @@ void Page::_addChangeProductInfo(Program &program, const ImVec2 &start)
     ImGui::EndPopup();
 }
 
+/*
+ * 관리 서버에 연결을 시도하는 함수
+ * 연결에 성공하면 연결 종료 버튼으로 바뀐다
+ */
 void Page::_addconnectServer(Program &program, const ImVec2 &start)
 {
     Client &client = program.getClient();
@@ -476,14 +493,14 @@ void Page::_addconnectServer(Program &program, const ImVec2 &start)
     if (!client.isConnected()) {
         if (ImGui::Button("서버 연결", BASIC_BUTTON_SIZE)) {
             DebugLog::AddLog("서버 연결 버튼 클릭");
-            program.getClient().tryConnect();
+            program.getClient().tryConnect(); // 연결 시도
         }
     }
     // 서버와 연결 중일 때
     else {
         if (ImGui::Button("서버 연결 종료", BASIC_BUTTON_SIZE)) {
             DebugLog::AddLog("서버 연결 종료 버튼 클릭");
-            program.getClient().closeConnect();
+            program.getClient().closeConnect(); // 연결 종료
         }
     }
 }
@@ -523,8 +540,11 @@ void Page::__addBuyButton(Client &client, VendingMachine &machine, Shelf &rack, 
         DebugLog::AddLog("%s 구매 버튼 클릭", rack.getLabelCstring());
         try
         {
-            client.addToWrite(std::string(rack.getLabel() + " 구매 버튼 클릭" + '\n'));
-            machine.sell(rack.getID()); // 물품 판매. 재고 없을 시 에러 발생
+            // 물품 판매. 재고 없을 시 에러 발생
+            machine.sell(rack.getID());
+            // 서버로 로그 전송
+            std::string msg = concatenate( "SELL", ' ', rack.getID(), '\n');
+            client.addToWrite(msg);
         }
         catch (const std::logic_error& e)
         {

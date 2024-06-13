@@ -14,6 +14,7 @@ private:
     VendingMachine _machine;
     Client _client;
     std::string _password;
+    MyQueue<std::string> _lines;
 
 public:
     Program();
@@ -28,6 +29,16 @@ public: /* get */
     VendingMachine &getMachine(void) noexcept;
     Client &getClient(void) noexcept;
     std::string getPassword(void) const noexcept;
+
+public: /* Read Buffer Parsing */
+    void parse(void);
+
+private: /* Parsing utility */
+    void splitByNewLine(const std::string &buf);
+    void parseEachLine(std::string &line);
+    void parseWELCOME(std::string &line);
+    void parseUPDATE(std::string &line);
+    void parsePRINT(std::string &line);
 };
 
 #endif

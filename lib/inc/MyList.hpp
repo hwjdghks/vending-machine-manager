@@ -98,7 +98,7 @@ T MyList<T>::front(void)
 {
     if (_head == nullptr)
         throw std::logic_error("front() 데이터 없음.");
-    return _head->data;
+    return _head->_data;
 }
 
 template <typename T>
