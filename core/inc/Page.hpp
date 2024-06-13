@@ -6,22 +6,24 @@
 #include "DebugLog.hpp"
 #include "Program.hpp"
 
+/*
+ * 자판기 GUI 구현을 위한 그리기 함수 집합 클래스
+ * 판매 화면, 관리 화면
+ */
 class Page
 {
 private:
-    /* data */
     static ViewMode _drawMenuID;
 
 public:
-    Page(/* args */);
+    Page();
     ~Page();
 
-public:
-    static void initDrawData();
-    static ViewMode getDrawID();
-    static void drawSalesWindows(Program &program);
-    static void drawAdminWindows(Program &program);
-    void drawConnectToServerWindows();
+public: /* 그리기 함수 */
+    static void initDrawData(); // 초기 화면 지정
+    static ViewMode getDrawID(); // 현재 그리는 화면의 ID
+    static void drawSalesWindows(Program &program); // 판매 화면 그리기 (Sales)
+    static void drawAdminWindows(Program &program); // 관리 화면 그리기 (Admin)
 
 private: /* Sales */
     static void _addDisplayBeverage(Program &program, const ImVec2 &start);

@@ -1,18 +1,13 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <thread>
-#include <signal.h>
-
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include <GLFW/glfw3.h>
-#include <string>
 
 #include "Page.hpp"
 #include "Program.hpp"
 
-#define NUM_THREADS 2
+#include <GLFW/glfw3.h>
+#include <thread>
+#include <signal.h>
 
 // 자판기 gui를 그리는 함수
 void *drawGui(void *arg)
@@ -61,18 +56,12 @@ void *drawGui(void *arg)
         // ImGui 렌더링
         DebugLog::Draw("Detail log");
         ImGui::Render();
-        // int display_w, display_h;
-        // glfwGetFramebufferSize(window, &display_w, &display_h);
-        // glViewport(0, 0, display_w, display_h);
-        // glClearColor(0.45f, 0.55f, 0.60f, 1.00f);
-        // glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         // OpenGL 버퍼 스왑
         glfwSwapBuffers(window);
     }
     // 창 종료
-    /* Need Edit */
     program->getClient().closeConnect();
 
     // ImGui 정리

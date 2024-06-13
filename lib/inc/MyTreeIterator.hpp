@@ -14,19 +14,19 @@ private:
     MyStack<MyTreeNode<T> *> _stack;
 
 public:
-    Iterator(MyTreeNode<T> *root);
-    bool hasNext(void) const;
+    Iterator(MyTreeNode<T> *root) noexcept;
+    bool hasNext(void) const noexcept;
     T &next(void);
 
 private:
-    void pushAllLeftNode(MyTreeNode<T> *node);
+    void pushAllLeftNode(MyTreeNode<T> *node) noexcept;
 };
 
 /*
  * 반복자 생성자
  */
 template<typename T>
-MyTree<T>::Iterator::Iterator(MyTreeNode<T> *root)
+MyTree<T>::Iterator::Iterator(MyTreeNode<T> *root) noexcept
 {
     pushAllLeftNode(root);
 }
@@ -35,7 +35,7 @@ MyTree<T>::Iterator::Iterator(MyTreeNode<T> *root)
  * 스택에 노드가 남았는지 확인
  */
 template<typename T>
-bool MyTree<T>::Iterator::hasNext(void) const
+bool MyTree<T>::Iterator::hasNext(void) const noexcept
 {
     return !_stack.empty();
 }
@@ -59,7 +59,7 @@ T &MyTree<T>::Iterator::next(void)
  * 함수 실행 후 현재 트리의 최소값이 스택의 최상단에 위치하게 된다
  */
 template<typename T>
-void MyTree<T>::Iterator::pushAllLeftNode(MyTreeNode<T> *node)
+void MyTree<T>::Iterator::pushAllLeftNode(MyTreeNode<T> *node) noexcept
 {
     while (node) {
         _stack.push(node);

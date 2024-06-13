@@ -3,32 +3,25 @@
 
 #include "MyList.hpp"
 
+/*
+ * list를 기반으로 구현된 스택 자료구조
+ */
 template <typename T>
 class MyStack
 {
 private:
-    MyList<T> c;
+    MyList<T> c; // 기반 자료구조
 
 public:
     MyStack();
     ~MyStack();
 
-public:
+public: /* 자료구조 기능 */
     T top(void);
-
-public:
-    void push(T data);
-    void pop(void);
-
-public:
+    void push(T data) noexcept;
+    void pop(void) noexcept;
     bool empty(void) const noexcept;
     std::size_t size(void) const noexcept;
-
-public:
-    /*
-     * TODO
-     * Add custom Exception
-    */
 };
 
 template <typename T>
@@ -38,13 +31,13 @@ template <typename T>
 MyStack<T>::~MyStack() {}
 
 template <typename T>
-void MyStack<T>::push(T data)
+void MyStack<T>::push(T data) noexcept
 {
     c.push_back(data);
 }
 
 template <typename T>
-void MyStack<T>::pop(void)
+void MyStack<T>::pop(void) noexcept
 {
     c.pop_back();
 }

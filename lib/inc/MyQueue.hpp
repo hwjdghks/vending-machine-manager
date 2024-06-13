@@ -3,33 +3,27 @@
 
 #include "MyList.hpp"
 
+
+/*
+ * list를 기반으로 구현된 큐 자료구조
+ */
 template <typename T>
 class MyQueue
 {
 private:
-    MyList<T> c;
+    MyList<T> c; // 기반 자료구조
 
 public:
     MyQueue();
     ~MyQueue();
 
-public:
+public: /* 자료구조 기능 */
     T front(void);
     T back(void);
-
-public:
-    void push(T data);
-    void pop(void);
-
-public:
+    void push(T data) noexcept;
+    void pop(void) noexcept;
     bool empty(void) const noexcept;
     std::size_t size(void) const noexcept;
-
-public:
-    /*
-     * TODO
-     * Add custom Exception
-    */
 };
 
 
@@ -52,13 +46,13 @@ T MyQueue<T>::back(void)
 }
 
 template <typename T>
-void MyQueue<T>::push(T data)
+void MyQueue<T>::push(T data) noexcept
 {
     c.push_back(data);
 }
 
 template <typename T>
-void MyQueue<T>::pop(void)
+void MyQueue<T>::pop(void) noexcept
 {
     c.pop_front();
 }

@@ -5,6 +5,7 @@
 #include <string>
 #include <stdexcept>
 
+/* 템플릿을 사용한 이중 연결 리스트 자료구조 */
 template <typename T>
 class MyList
 {
@@ -17,17 +18,16 @@ public:
     MyList();
     ~MyList();
 
-public:
-    void push_back(T val);
-    void pop_back(void);
-    void pop_front(void);
-
+public: /* 자료구조 기능 */
+    void push_back(T val) noexcept;
+    void pop_back(void) noexcept;
+    void pop_front(void) noexcept;
     T front(void);
     T back(void);
-    int size(void) const noexcept;
-    bool empty(void) const noexcept;
     MyNode<T> *begin(void) const noexcept;
     MyNode<T> *end(void) const noexcept;
+    int size(void) const noexcept;
+    bool empty(void) const noexcept;
 };
 
 template <typename T>
@@ -45,7 +45,7 @@ MyList<T>::~MyList()
 }
 
 template <typename T>
-void MyList<T>::push_back(T val)
+void MyList<T>::push_back(T val) noexcept
 {
     MyNode<T> *newNode = new MyNode<T>(val);
     if (_head == nullptr)
@@ -62,7 +62,7 @@ void MyList<T>::push_back(T val)
 }
 
 template <typename T>
-void MyList<T>::pop_back()
+void MyList<T>::pop_back() noexcept
 {
     if (_tail != nullptr)
     {
@@ -78,7 +78,7 @@ void MyList<T>::pop_back()
 }
 
 template <typename T>
-void MyList<T>::pop_front()
+void MyList<T>::pop_front() noexcept
 {
     if (_head != nullptr)
     {
@@ -110,18 +110,6 @@ T MyList<T>::back(void)
 }
 
 template <typename T>
-int MyList<T>::size(void) const noexcept
-{
-    return _size;
-}
-
-template <typename T>
-bool MyList<T>::empty(void) const noexcept
-{
-    return (_size == 0);
-}
-
-template <typename T>
 MyNode<T> *MyList<T>::begin(void) const noexcept
 {
     return _head;
@@ -131,6 +119,18 @@ template <typename T>
 MyNode<T> *MyList<T>::end(void) const noexcept
 {
     return nullptr;
+}
+
+template <typename T>
+int MyList<T>::size(void) const noexcept
+{
+    return _size;
+}
+
+template <typename T>
+bool MyList<T>::empty(void) const noexcept
+{
+    return (_size == 0);
 }
 
 #endif

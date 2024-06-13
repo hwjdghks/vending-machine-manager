@@ -101,7 +101,7 @@ void Client::changeState(void)
 }
 
 /*
- * 멀티 쓰레드용 recv loop 함수
+ * 멀티 스레드용 recv loop 함수
  * 연결중인 동안 루프를 돌면서 주기적으로 소켓에서 데이터를 읽어옴
  */
 void Client::recvLoop(void)
@@ -126,7 +126,7 @@ void Client::recvLoop(void)
 }
 
 /*
- * 멀티 쓰레드용 send loop 함수
+ * 멀티 스레드용 send loop 함수
  * 연결중인 동안 루프를 돌면서 주기적으로 소켓에 데이터를 보냄
  */
 void Client::sendLoop(void)

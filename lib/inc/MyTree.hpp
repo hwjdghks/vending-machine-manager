@@ -17,30 +17,32 @@ public:
     MyTree();
     ~MyTree();
 
-public:
-    void insertNode(T data);
-    void deleteNode(T data);
-    MyTreeNode<T> *findNode(int id);
+public: /* 자료구조 기능 */
+    void insertNode(T data) noexcept;
+    void deleteNode(T data) noexcept;
+    MyTreeNode<T> *findNode(int id) noexcept;
 
-public:
+public: /* 반복자 기능 */
     class Iterator;
-    Iterator begin(void) const;
+    Iterator begin(void) const noexcept;
 
-private:
-    MyTreeNode<T> *insertNode(MyTreeNode<T> *node, T data);
-    MyTreeNode<T> *deleteNode(MyTreeNode<T> *node, T data);
-    int getHeight(MyTreeNode<T> *node) const;
-    int updateHeight(MyTreeNode<T> *node);
-    int getBalance(MyTreeNode<T> *node);
-    MyTreeNode<T> *getMinNode(MyTreeNode<T> *node);
+private: /* 트리 내부 함수 */
+    MyTreeNode<T> *insertNode(MyTreeNode<T> *node, T data) noexcept;
+    MyTreeNode<T> *deleteNode(MyTreeNode<T> *node, T data) noexcept;
+    MyTreeNode<T> *findNode(MyTreeNode<T> *node, T data) noexcept;
 
-private:
-    MyTreeNode<T> *leftRotate(MyTreeNode<T> *node);
-    MyTreeNode<T> *rightRotate(MyTreeNode<T> *node);
+private: /* get */
+    int getHeight(MyTreeNode<T> *node) const noexcept;
+    int updateHeight(MyTreeNode<T> *node) noexcept;
+    int getBalance(MyTreeNode<T> *node) noexcept;
+    MyTreeNode<T> *getMinNode(MyTreeNode<T> *node) noexcept;
 
-private:
-    int max(int a, int b);
-    MyTreeNode<T> *findNode(MyTreeNode<T> *node, T data);
+private: /* Roatate Control*/
+    MyTreeNode<T> *leftRotate(MyTreeNode<T> *node) noexcept;
+    MyTreeNode<T> *rightRotate(MyTreeNode<T> *node) noexcept;
+
+private: /* utility */
+    int max(int a, int b) noexcept;
 };
 
 template<typename T>
@@ -54,7 +56,7 @@ MyTree<T>::~MyTree() {}
  * 트리의 균형을 조절한 후 전체 트리의 root를 반환
  */
 template<typename T>
-void MyTree<T>::insertNode(T data)
+void MyTree<T>::insertNode(T data) noexcept
 {
     _root = insertNode(_root, data);
 }
@@ -64,7 +66,7 @@ void MyTree<T>::insertNode(T data)
  * 트리의 균형을 조절한 후 전체 트리의 root를 반환
  */
 template<typename T>
-void MyTree<T>::deleteNode(T data)
+void MyTree<T>::deleteNode(T data) noexcept
 {
     _root = deleteNode(_root, data);
 }
@@ -73,7 +75,7 @@ void MyTree<T>::deleteNode(T data)
  * 재귀적으로 순회하면서 노드를 삽입
  */
 template<typename T>
-MyTreeNode<T>* MyTree<T>::insertNode(MyTreeNode<T> *node, T data)
+MyTreeNode<T>* MyTree<T>::insertNode(MyTreeNode<T> *node, T data) noexcept
 {
     // 현재 위치에 새 노드 생성
     if (!node)
@@ -111,7 +113,7 @@ MyTreeNode<T>* MyTree<T>::insertNode(MyTreeNode<T> *node, T data)
 }
 
 template<typename T>
-MyTreeNode<T>* MyTree<T>::deleteNode(MyTreeNode<T> *node, T data)
+MyTreeNode<T>* MyTree<T>::deleteNode(MyTreeNode<T> *node, T data) noexcept
 {
     // 삭제할 노드를 찾지 못했을 경우 nullptr 반환
     if (node == nullptr)
@@ -175,10 +177,24 @@ MyTreeNode<T>* MyTree<T>::deleteNode(MyTreeNode<T> *node, T data)
 }
 
 /*
+ * 노드를 재귀적으로 순회하여 찾는 노드를 반환하는 함수
+ */
+template<typename T>
+MyTreeNode<T> *MyTree<T>::findNode(MyTreeNode<T> *node, T data) noexcept
+{
+    if (node == nullptr || node->_data == data)
+        return node;
+    if (data < node->_data)
+        return findNode(node->_left, data);
+    else
+        return findNode(node->_right, data);
+}
+
+/*
  * 이진 탐색으로 노드를 찾는 함수
  */
 template<typename T>
-MyTreeNode<T> *MyTree<T>::findNode(int id)
+MyTreeNode<T> *MyTree<T>::findNode(int id) noexcept
 {
     return findNode(_root, T(id));
 }
@@ -187,7 +203,8 @@ MyTreeNode<T> *MyTree<T>::findNode(int id)
  * 전체 트리에 대해서 반복자 생성
  */
 template<typename T>
-typename MyTree<T>::Iterator MyTree<T>::begin(void) const{
+typename MyTree<T>::Iterator MyTree<T>::begin(void) const noexcept
+{
     return Iterator(_root);
 }
 
@@ -195,7 +212,7 @@ typename MyTree<T>::Iterator MyTree<T>::begin(void) const{
  * 현재 노드의 높이를 반환
  */
 template<typename T>
-int MyTree<T>::getHeight(MyTreeNode<T> *node) const
+int MyTree<T>::getHeight(MyTreeNode<T> *node) const noexcept
 {
     if (node == nullptr)
         return 0;
@@ -207,7 +224,7 @@ int MyTree<T>::getHeight(MyTreeNode<T> *node) const
  * 결과가 -1 미만 또는 1 초과일 경우 해당 노드를 기준으로 트리 불균형이 발생
  */
 template<typename T>
-int MyTree<T>::getBalance(MyTreeNode<T> *node)
+int MyTree<T>::getBalance(MyTreeNode<T> *node) noexcept
 {
     if (node == nullptr)
         return 0;
@@ -219,7 +236,7 @@ int MyTree<T>::getBalance(MyTreeNode<T> *node)
  * 트리의 구조상 최소값은 왼쪽 아래에 있으므로 해당 노드를 찾아서 반환한다
  */
 template<typename T>
-MyTreeNode<T> *MyTree<T>::getMinNode(MyTreeNode<T> *node)
+MyTreeNode<T> *MyTree<T>::getMinNode(MyTreeNode<T> *node) noexcept
 {
     MyTreeNode<T> *current = node;
 
@@ -232,7 +249,7 @@ MyTreeNode<T> *MyTree<T>::getMinNode(MyTreeNode<T> *node)
  * 왼쪽 회전 함수
  */
 template<typename T>
-MyTreeNode<T> *MyTree<T>::leftRotate(MyTreeNode<T> *node)
+MyTreeNode<T> *MyTree<T>::leftRotate(MyTreeNode<T> *node) noexcept
 {
     MyTreeNode<T> *right = node->_right;
     MyTreeNode<T> *right_left = right->_left;
@@ -249,7 +266,7 @@ MyTreeNode<T> *MyTree<T>::leftRotate(MyTreeNode<T> *node)
  * 오른쪽 회전 함수
  */
 template<typename T>
-MyTreeNode<T> *MyTree<T>::rightRotate(MyTreeNode<T> *node)
+MyTreeNode<T> *MyTree<T>::rightRotate(MyTreeNode<T> *node) noexcept
 {
     MyTreeNode<T> *left = node->_left;
     MyTreeNode<T> *left_right = left->_right;
@@ -266,23 +283,9 @@ MyTreeNode<T> *MyTree<T>::rightRotate(MyTreeNode<T> *node)
  * std::max를 사용하기 위해 필요한 헤더 파일을 include하는 대신 직접 구현
  */
 template<typename T>
-int MyTree<T>::max(int a, int b)
+int MyTree<T>::max(int a, int b) noexcept
 {
     return (a > b) ? a : b;
-}
-
-/*
- * 노드를 재귀적으로 순회하여 찾는 노드를 반환하는 함수
- */
-template<typename T>
-MyTreeNode<T> *MyTree<T>::findNode(MyTreeNode<T> *node, T data)
-{
-    if (node == nullptr || node->_data == data)
-        return node;
-    if (data < node->_data)
-        return findNode(node->_left, data);
-    else
-        return findNode(node->_right, data);
 }
 
 #include "MyTreeIterator.hpp"

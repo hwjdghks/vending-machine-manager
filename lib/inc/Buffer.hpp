@@ -4,6 +4,10 @@
 #include <string>
 #include <mutex>
 
+/*
+ * 버퍼 string을 관리하는 함수
+ * mutex를 사용하여 상호배제 적용
+ */
 class Buffer
 {
 private:
@@ -14,7 +18,7 @@ public:
     Buffer();
     ~Buffer();
 
-public:
+public: /* Buffer Control */
     void clear(void) noexcept;
     void fill(std::string str) noexcept;
     void fill(const char *str) noexcept;
@@ -22,7 +26,7 @@ public:
     void rollback(std::string str, std::size_t pos) noexcept;
     bool empty(void) const noexcept;
 
-public:
+public: /* operator overloading */
     Buffer &operator=(const Buffer &rhs);
 };
 

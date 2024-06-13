@@ -1,6 +1,7 @@
 #ifndef CURRENCY_HPP
 #define CURRENCY_HPP
 
+/* 화폐 클래스 */
 class Currency
 {
 private:

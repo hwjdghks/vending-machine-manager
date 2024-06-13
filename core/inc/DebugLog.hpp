@@ -5,6 +5,10 @@
 #include "imgui.h"
 #include "utils.hpp"
 
+/*
+ * 로그 출력 화면용 클래스
+ * ImGui 예제에서 수정하여 사용
+ */
 class DebugLog
 {
 private:

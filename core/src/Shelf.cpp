@@ -49,7 +49,7 @@ int Shelf::discard(void)
  */
 void Shelf::updataInfo(const std::string &label, int price)
 {
-    try
+    try // 상품명 변경 시도
     {
         setLabel(label);
     }
@@ -57,7 +57,7 @@ void Shelf::updataInfo(const std::string &label, int price)
     {
         DebugLog::AddLog("%s", e.what());
     }
-    try
+    try // 상품 가격 변경 시도
     {
         setPrice(price);
     }
@@ -65,6 +65,7 @@ void Shelf::updataInfo(const std::string &label, int price)
     {
         DebugLog::AddLog("%s", e.what());
     }
+    // 상품 업데이트
     refill(discard());
 }
 

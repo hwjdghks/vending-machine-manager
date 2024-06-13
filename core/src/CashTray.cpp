@@ -10,11 +10,17 @@ CashTray::CashTray(int id, int label)
 
 CashTray::~CashTray() {}
 
+/*
+ * 돈 입금 함수
+ */
 void CashTray::deposit(void)
 {
     _cashBox.push(Currency(getLabel()));
 }
 
+/*
+ * 돈 출금 함수
+ */
 void CashTray::withdraw(void)
 {
     if (_cashBox.empty())

@@ -12,7 +12,7 @@ public:
     Client();
     ~Client();
 
-public:
+public: /* 클라이언트용 함수 */
     void init(void);
     void tryConnect(void);
     void closeConnect(void);
@@ -20,7 +20,7 @@ public:
     bool isConnected(void);
     void changeState(void);
 
-private:
+private: /* 멀티 스레드용 루프 함수 */
     void recvLoop(void);
     void sendLoop(void);
 };

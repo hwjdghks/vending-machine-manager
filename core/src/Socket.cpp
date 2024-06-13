@@ -6,11 +6,7 @@ Socket::Socket(int fd) : _fd(fd) {}
 
 Socket::Socket(const Socket &rhs)
 {
-    this->_fd = rhs._fd;
-    this->_id = rhs._id;
-    this->_addr = rhs._addr;
-    this->readBuf = rhs.readBuf;
-    this->writeBuf = rhs.writeBuf;
+    *this = rhs;
 }
 
 Socket::~Socket() {}

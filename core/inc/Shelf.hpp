@@ -7,25 +7,26 @@
 
 #define PRODUCT_AMOUNT 10
 
+/* 상품 진열대 클래스 */
 class Shelf
 {
 private:
     int                 _id;
     std::string         _label;
     int                 _price;
-    MyQueue<Beverage>   _shelf;
+    MyQueue<Beverage>   _shelf; // 실제 상품 관리 자료구조
 
 public:
     Shelf(int id, const std::string &label, int price);
     ~Shelf();
 
-public:
+public: /* 상품 선반 함수 */
     void refill(int count);
     void sell(void);
     int discard(void);
     void updataInfo(const std::string &label, int price);
 
-public:
+public: /* get & set */
     int getID(void) const noexcept;
     std::string getLabel(void) const noexcept;
     const char *getLabelCstring(void) const noexcept;

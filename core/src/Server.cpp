@@ -10,6 +10,8 @@ void Server::init(void)
 
     Socket::init(); // 공통 초기화
     _addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    // 주소와 포트 재사용 옵션 추가
+    // 서버 종료후 바로 재실행할 경우 기다려야하는 현상 방지
     if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &dummy, sizeof(dummy)) == -1)
         throw std::runtime_error("setsockopt() failed.");
     if (bind(_fd, reinterpret_cast<sockaddr *>(&_addr), sizeof(_addr)) == -1)
@@ -18,6 +20,10 @@ void Server::init(void)
         throw std::runtime_error("listen() failed.");
 }
 
+/*
+ * 멀티 스레드 호출 함수
+ * 클라이언트 연결 요청, 수신, 발신 함수를 각각의 스레드로 동작하게 함
+ */
 void Server::run(void)
 {
     std::thread acceptThread(&Server::acceptLoop, std::ref(*this));
@@ -29,6 +35,9 @@ void Server::run(void)
     sendThread.join();
 }
 
+/*
+ * 클라이언트 연결 수락 함수
+ */
 int Server::acceptClient(void)
 {
     int client_fd;
@@ -36,11 +45,13 @@ int Server::acceptClient(void)
     socklen_t len = sizeof(addr);
 
     errno = 0;
+    // 클라이언트 연결 수락
     client_fd = accept(_fd, reinterpret_cast<sockaddr *>(&addr), &len);
     if (client_fd == -1 && (errno != EAGAIN && errno != EWOULDBLOCK))
         throw std::runtime_error("accept() failed.");
-    else if (client_fd == -1)
+    else if (client_fd == -1) // 재시도해야 할 경우 error throw 없이 종료
         return -1;
+    // 논블록 옵션 설정
     if (fcntl(client_fd, F_SETFL, O_NONBLOCK) == -1) {
         close(client_fd);
         throw std::runtime_error("fcntl() failed.");
@@ -56,7 +67,7 @@ int Server::acceptClient(void)
     catch(const std::exception& e)
     {
         std::cerr << "acceptClient(): "<< e.what() << '\n';
-        throw;
+        throw; // 현재 에러를 상위 try-catch문으로 전달
     }
     return client_fd;
 }
@@ -69,7 +80,6 @@ void Server::addClient(int fd)
 
 Socket &Server::getClient(int fd)
 {
-
     std::lock_guard<std::mutex> lock(_s_mutex);
     MyTreeNode<Socket> *node = _clients.findNode(fd);
     if (node == nullptr)
@@ -92,6 +102,9 @@ void Server::delClient(Socket &client)
     }
 }
 
+/*
+ * 멀티 스레드용 accept 루프 함수
+ */
 void Server::acceptLoop(void)
 {
     std::cout << "accpet threaad on\n";
@@ -122,6 +135,9 @@ void Server::acceptLoop(void)
     }
 }
 
+/*
+ * 멀티 스레드용 recv 루프 함수
+ */
 void Server::recvLoop(void)
 {
     std::cout << "recv threaad on\n";
@@ -152,6 +168,9 @@ void Server::recvLoop(void)
     }
 }
 
+/*
+ * 멀티 스레드용 send 루프 함수
+ */
 void Server::sendLoop(void)
 {
     std::cout << "send threaad on\n";
