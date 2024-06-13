@@ -75,11 +75,11 @@ void Program::parse(void)
 
     if (buf.empty())
         return ;
-    std::cout << "From Server: " << buf << '$' << '\n';
     splitByNewLine(buf);
     while (!_lines.empty()) {
         std::string line = _lines.front();
         _lines.pop();
+        std::cout << "From Server: " << line << '$' << '\n';
         parseEachLine(line);
     }
 }
@@ -95,7 +95,7 @@ void Program::splitByNewLine(const std::string &buf)
 
 void Program::parseEachLine(std::string &line)
 {
-    DebugLog::AddLog("From Server: %s\n", line.c_str());
+    DebugLog::AddLog("From Server: %s", line.c_str());
     switch (getCommand(line))
     {
     case CMD::WELCOME: // 서버 연결 성공

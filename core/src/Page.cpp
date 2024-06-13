@@ -144,7 +144,7 @@ void Page::_addPaymentPanel(Program &program, const ImVec2 &start)
             }
             catch (const std::logic_error &e)
             {
-                DebugLog::AddLog("%s", e.what());\
+                DebugLog::AddLog("%s", e.what());
                 // 서버로 알람 전송
                 Client &client = program.getClient();
                 client.addToWrite("ALERT BALANCE");
@@ -519,11 +519,23 @@ void Page::__addDisplayPanel(const char *label, const ImVec2 &ratio)
  */
 void Page::__addBuyButton(Client &client, VendingMachine &machine, Shelf &rack, const ImVec2 &ratio)
 {
+    // 재고가 일정 수량 이하인지 체크하고 서버로 알람을 보내는 플래그
+    static bool warnFlag[6] = { true };
+    // 재고가 매진인지 체크하고 서버로 알람을 보내는 플래그
+    static bool soldOutFlag[6] = { true };
+
     // 버튼 위치 지정
     ImGui::SetCursorPos(getVec2(ratio));
     // 예외 상황시 구매 버튼 스킵
     if (rack.getAmount() == 0) {
         ImGui::Button("매진", ImVec2(100, 60));
+        // 재고 소진 알람 전송
+        if (soldOutFlag[rack.getID()]) {
+            std::string msg;
+            msg = concatenate("ALERT", ' ', "STOCK", ' ', rack.getID(), '\n');
+            client.addToWrite(msg);
+            soldOutFlag[rack.getID()] = false;
+        }
         return ;
     }
     else if (machine.getBalance() < rack.getPrice()) {
@@ -538,6 +550,8 @@ void Page::__addBuyButton(Client &client, VendingMachine &machine, Shelf &rack, 
     // 구매 버튼 추가
     if (ImGui::Button(label.c_str(), ImVec2(100, 60))) {
         DebugLog::AddLog("%s 구매 버튼 클릭", rack.getLabelCstring());
+        // 구매가 가능하단 것은 재고가 있다는 것이므로 일치하는 플래그를 초기화한다
+        soldOutFlag[rack.getID()] = true;
         try
         {
             // 물품 판매. 재고 없을 시 에러 발생
@@ -550,6 +564,17 @@ void Page::__addBuyButton(Client &client, VendingMachine &machine, Shelf &rack, 
         {
             DebugLog::AddLog("%s", e.what());
         }
+        // 재고 보충 필요시 서버로 알람 전송
+        // 한번만 전송하고 이후 보충될때까지 비활성화
+        if (rack.getAmount() < 4 && warnFlag[rack.getID()]) {
+            std::string msg;
+            msg = concatenate("ALERT", ' ', "WARN", ' ', rack.getID(), '\n');
+            client.addToWrite(msg);
+            warnFlag[rack.getID()] = false;
+        }
+        // 재고가 충분하면 다시 알람 전송 가능하게 변경
+        else if (rack.getAmount() >= 4)
+            warnFlag[rack.getID()] = true;
         DebugLog::AddLog("%s 남은 수량 : %ld", rack.getLabelCstring(), rack.getAmount());
     }
     ImGui::PopID(); // 식별자 해제

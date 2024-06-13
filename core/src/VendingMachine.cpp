@@ -198,5 +198,4 @@ void VendingMachine::setLabel(const std::string label)
     if (label == "")
         throw std::logic_error("허용되지 않는 라벨! Before:" + getLabel() + ", After:" + label);
     _label = label;
-    DebugLog::AddLog("%s 성공",  label);
 }

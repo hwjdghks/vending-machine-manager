@@ -50,7 +50,7 @@ void *drawGui(void *arg)
             Page::drawSalesWindows(*program);
         else
             Page::drawAdminWindows(*program);
-        // 저장되어 있는 버퍼를 처리
+        // 서버로부터 전달받아 저장되어 있는 버퍼를 처리
         program->parse();
         // ImGui 렌더링
         DebugLog::Draw("Detail log");

@@ -298,6 +298,8 @@ void Server::parseEachLine(Info &info, std::string &line)
     std::cout << line << '$' << '\n';
     if (line[0] == ':') {
         int id = getPrefix(line);
+        /* Need Edit */
+        (void)id;
         std::cout << ":prefix" << line << '$' << '\n';
     }
     switch (getCommand(line))
