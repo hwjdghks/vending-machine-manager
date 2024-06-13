@@ -1,6 +1,6 @@
 # Vending Machine Manager
 
-A GUI-based vending machine program using OpenGL3 and GLFW.
+A GUI-based vending machine program using [Dear ImGui](https://github.com/ocornut/imgui).
 
 ## Dependencies
 - **Ubuntu 22.04**
