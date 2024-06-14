@@ -43,13 +43,17 @@ private: /* Roatate Control*/
 
 private: /* utility */
     int max(int a, int b) noexcept;
+    void deleteTree(MyTreeNode<T> *node) noexcept;
 };
 
 template<typename T>
 MyTree<T>::MyTree() : _root(nullptr) {}
 
 template<typename T>
-MyTree<T>::~MyTree() {}
+MyTree<T>::~MyTree()
+{
+    deleteTree(_root);
+}
 
 /*
  * 재귀적으로 순회하면서 노드를 삽입
@@ -286,6 +290,18 @@ template<typename T>
 int MyTree<T>::max(int a, int b) noexcept
 {
     return (a > b) ? a : b;
+}
+
+/*
+ * 트리 전체 삭제 함수
+ */
+template<typename T>
+void MyTree<T>::deleteTree(MyTreeNode<T> *node) noexcept {
+    if (node != nullptr) {
+        deleteTree(node->_left);
+        deleteTree(node->_right);
+        delete node;
+    }
 }
 
 #include "MyTreeIterator.hpp"

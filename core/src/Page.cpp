@@ -286,7 +286,7 @@ void Page::_addChangePasswd(Program &program, const ImVec2 &start)
         ImGui::InputText("##current", currentPw, IM_ARRAYSIZE(currentPw),
                 ImGuiInputTextFlags_CharsNoBlank
                 | ImGuiInputTextFlags_EnterReturnsTrue);
-        ImGui::Text("현재 비밀번호: ");
+        ImGui::Text("   새 비밀번호: ");
         ImGui::SameLine();
 
         // 비밀번호 입력 폼 생성
@@ -294,7 +294,7 @@ void Page::_addChangePasswd(Program &program, const ImVec2 &start)
         ImGui::InputText("##change", newPw, IM_ARRAYSIZE(newPw),
                 ImGuiInputTextFlags_CharsNoBlank
                 | ImGuiInputTextFlags_EnterReturnsTrue);
-        ImGui::Text("현재 비밀번호: ");
+        ImGui::Text("비밀번호 확인: ");
         ImGui::SameLine();
 
         // 비밀번호 입력 폼 생성

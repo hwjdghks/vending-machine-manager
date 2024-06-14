@@ -355,15 +355,14 @@ void Server::parseALERT(Info &info, std::string &line)
 {
     (void)info;
     std::string type = getWord(line); // 어떤 종류의 알람인지
-    int data = getInt(line);
     if (type == "WARN") { // 재고 부족 경고
-        std::cout << "ID: " << data << "번 슬롯 재고 보충이 필요합니다." << '\n';
+        std::cout << "ID: " << getInt(line) << "번 슬롯 재고 보충이 필요합니다." << '\n';
     }
     else if (type == "STOCK") { // 재고 없음 알람
-        std::cout << "ID: " << data << "번 슬롯 재고 없음!!" << '\n';
+        std::cout << "ID: " << getInt(line) << "번 슬롯 재고 없음!!" << '\n';
     }
     else if (type == "BALANCE") { // 거스름돈 부족 알람
-        std::cout << data << "원 거스름돈 개수 부족!!" << '\n';
+        std::cout << "거스름돈 개수 부족!!" << '\n';
     }
 }
 
