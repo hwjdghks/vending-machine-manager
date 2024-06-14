@@ -15,7 +15,7 @@ void *drawGui(void *arg)
     if (!glfwInit())
         return nullptr;
     // Create window with graphics context
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "ImGui Example", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "Vending Machine Client", nullptr, nullptr);
     glfwMakeContextCurrent(window);
 
     // ImGui 초기화
