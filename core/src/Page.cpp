@@ -13,7 +13,7 @@ ViewMode Page::_drawMenuID;
  */
 void Page::initDrawData()
 {
-    Page::_drawMenuID = ViewMode::ADMIN;
+    Page::_drawMenuID = ViewMode::SALES;
 }
 
 /*
