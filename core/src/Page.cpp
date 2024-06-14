@@ -462,9 +462,9 @@ void Page::_addChangeProductInfo(Program &program, const ImVec2 &start)
                 }
                 // 서버로 로그 전송
                 std::string msg;
-                msg = concatenate("UPDATE LABEL", ' ', labelBuf, '\n');
+                msg = concatenate("UPDATE", ' ', rack.getID(), ' ', "LABEL", ' ', labelBuf, '\n');
                 client.addToWrite(msg);
-                msg = concatenate("UPDATE PRICE", ' ', priceBuf, '\n');
+                msg = concatenate("UPDATE", ' ', rack.getID(), ' ', "PRICE", ' ', priceBuf, '\n');
                 client.addToWrite(msg);
             }
         }

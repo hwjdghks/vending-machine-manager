@@ -158,4 +158,5 @@ void Program::parseUPDATE(std::string &line)
 void Program::parsePRINT(std::string &line)
 {
     /* Need Edit */
+    (void)line;
 }

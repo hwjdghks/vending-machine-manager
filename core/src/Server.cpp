@@ -279,7 +279,7 @@ void Server::parse(Socket &client)
             std::string line = _lines.front();
             _lines.pop();
             // 어떤 문자열인지 로그 출력
-            std::cout << "fd " << client.getFD() << "=> " << std::flush;
+            std::cout << "fd " << client.getFD() << " => " << std::flush;
             // 한 문장 단위로 처리
             parseEachLine(info, line);
         }
@@ -308,8 +308,8 @@ void Server::parseEachLine(Info &info, std::string &line)
         parseSELL(info, line);
         break;
     case CMD::UPDATE: // 정보 업데이트
-        break;
         parseUPDATE(info, line);
+        break;
     case CMD::ALERT: // 여러 경고 알람
         parseALERT(info, line);
         break;
@@ -353,6 +353,7 @@ void Server::parseUPDATE(Info &info, std::string &line)
 
 void Server::parseALERT(Info &info, std::string &line)
 {
+    (void)info;
     std::string type = getWord(line); // 어떤 종류의 알람인지
     int data = getInt(line);
     if (type == "WARN") { // 재고 부족 경고
@@ -374,5 +375,4 @@ void Server::parseSET(Info &info, std::string &line)
         info._stock[i] = getInt(line);
         info._salesTotal[i] = getInt(line);
     }
-    std::cout << info;
 }
