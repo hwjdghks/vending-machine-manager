@@ -32,3 +32,6 @@ make
 ```bash
 ./vending_machine
 ```
+
+### Help
+관리자 페이지 초기 비밀번호 : password1@
